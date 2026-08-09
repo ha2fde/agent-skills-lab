@@ -33,6 +33,9 @@ git clone https://github.com/ha2fde/claude-skills.git "$HOME\.claude\skills"
 | 名字 | 干什么 |
 |---|---|
 | `tailscale-macos` | macOS 上装/配/验 Tailscale，尤其是开 Tailscale SSH 服务端（必须用开源 tailscaled，所有 GUI 版都开不了）。含装机脚本和一整节「哪些验证方法是死胡同」 |
+| `macos-remote-power` | 配电源策略让 Mac 插电时不休眠，随时能远程登录；拔电后自动恢复省电。一条 `pmset` 顶掉防休眠 App。含配置脚本 |
+
+这两个是一套：`tailscale-macos` 解决「怎么连进来」，`macos-remote-power` 解决「连的时候机器是醒的」。
 
 ## 写新 skill 的规矩
 
