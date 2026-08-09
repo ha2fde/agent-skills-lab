@@ -283,11 +283,58 @@ git remote set-url --add --push origin <别名>:<用户>/<仓库>.git
    `git branch --set-upstream-to=origin/main main` 改回来。
 
 验证：`git push --dry-run` 应该打印 **N 次** `Everything up-to-date`（N = 远端个数）。
-再对一遍四处的 commit：
+再对一遍各处的 commit：
 
 ```bash
 git rev-parse --short HEAD
-git ls-remote <别名> refs/heads/main
+git ls-remote <别名>:<用户>/<仓库>.git refs/heads/main
+```
+
+⚠️ `git ls-remote <别名>` 只写别名不写仓库路径，会报
+`does not appear to be a git repository` —— 那是命令写错了，不是服务挂了。
+
+### NAS 不在线时，push 看起来像整个失败了
+
+多个 pushurl 是**按配置顺序依次**推的。NAS 排在最后，所以它离线时：
+**前面几个远端其实都已经推成功了**，只有最后一条失败，但 `git push` 的退出码是非零，
+输出末尾一片红，很容易误判成「全都没推上去」。
+
+**不要做任何回滚动作。** 等 NAS 回来重跑一次 `git push` 就行 —— 前面的会说
+`Everything up-to-date`，只补推缺的那份。这个操作是幂等的。
+
+---
+
+## NAS 重启和升级时会怎样
+
+恢复链条**四环缺一不可**：
+
+```
+NAS 开机 → Container Manager 套件自启 → Docker 守护进程起来 → restart 策略拉起容器
+```
+
+镜像在本地，起容器不需要联网，所以断网也能自己回来。
+
+| 情况 | 影响 |
+|---|---|
+| 普通重启 / DSM 小版本更新 | 断几分钟，四环正常就自己回来 |
+| Container Manager 套件自身更新 | Docker 守护进程重启，容器跟着重启，短暂中断 |
+| **DSM 大版本升级** | ⚠️ 有可能把套件停在关闭状态或短暂标成「不兼容」 |
+| **断电** | ⚠️ 唯一真有数据风险的情况 |
+
+**⚠️ `unless-stopped` 有个反直觉的地方**：如果重启**之前**容器是被**手动停掉**的，
+重启后它**不会**自己起来 —— 这正是它和 `always` 的区别。关机前别手动停容器。
+
+**大版本升级后怎么判断**：**DSM 网页(5000)通但 Gitea(3000)不通 = Container Manager 没起来**。
+这时 `restart: unless-stopped` 完全救不了，因为 Docker 守护进程根本没运行。
+去套件中心手动启动一下即可，**不需要开 SSH**。
+
+**断电**：Gitea 用 sqlite，正常关机走 SIGTERM 会优雅退出，没事；突然断电才有概率伤到数据库。
+有 UPS 就配上，没有的话至少别硬按电源键。
+
+重启后一条命令验完（不需要登录 NAS）：
+
+```bash
+for p in 5000 3000 2222; do printf '%s: ' $p; nc -z -w 4 <NAS-地址> $p && echo 通 || echo 不通; done
 ```
 
 ---
@@ -297,6 +344,9 @@ git ls-remote <别名> refs/heads/main
 - **容器自启**：`restart: unless-stopped` 只管 Docker 守护进程重启，
   还要 `synopkg is_onoff ContainerManager` 确认套件本身开机自启，否则 NAS 重启后整个没了
 - **备份**：`/volume1/docker/gitea/data` 一整个目录就是全部状态，用 Hyper Backup 收进去
+- **升级 Gitea 前先备份**：`image: gitea/gitea:1` 会跟着 1.x 走，
+  `docker compose pull` 可能跨小版本，**Gitea 启动时会自动迁移数据库且不可逆**。
+  先停容器、拷一份 `data` 目录，再 pull
 - **DSM SSH 要不要关回去**：关了就没有维护通道了，下次改配置只能走任务计划。
   长期建议是「关掉 + 需要时临时开」，但要跟用户讲清楚代价
 - **一次性的计划任务用完删掉**
