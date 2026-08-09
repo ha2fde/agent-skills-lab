@@ -14,6 +14,21 @@ ok()   { printf '  \033[32m✅ %s\033[0m\n' "$*"; }
 warn() { printf '  \033[33m⚠️  %s\033[0m\n' "$*"; }
 die()  { printf '\n\033[31m❌ %s\033[0m\n' "$*"; exit 1; }
 
+# 以 root 运行一条命令，三级回退：
+#   1. sudo 凭据还在缓存里     → 直接用
+#   2. 有终端                  → 正常 sudo，交互输密码
+#   3. 没终端（被 agent / 自动化调用）→ 弹 macOS 原生授权窗口
+# 第 3 条是关键：sudo 必须有 TTY 才能读密码，而 osascript 不需要。
+run_root() {
+  sudo -n "$@" 2>/dev/null && return 0
+  if [ -t 0 ] && [ -t 1 ]; then
+    sudo "$@" && return 0
+    return 1
+  fi
+  printf '  \033[33m需要管理员权限 —— 屏幕上会弹出系统授权窗口，请输入登录密码\033[0m\n'
+  osascript -e "do shell script \"$*\" with administrator privileges" >/dev/null
+}
+
 printf '\033[1m===== 配置 macOS 电源策略（远程登录用）=====\033[0m\n'
 
 [ "$(uname)" = "Darwin" ] || die "这个脚本只能在 macOS 上跑"
@@ -55,19 +70,22 @@ fi
 if [ "$NEED_CHANGE" = yes ]; then
   say "把插电时的整机休眠改成「永不」"
   printf '  会执行:  sudo pmset -c sleep 0\n'
-  printf '  原值 %s 会记在下面的回滚命令里。继续？[Y/n] ' "$CUR_SLEEP"
-  read -r ans
-  case "${ans:-y}" in
-    n|N) printf '\n已取消，什么都没改。\n'; exit 0 ;;
-  esac
-  sudo pmset -c sleep 0 || die "pmset 执行失败"
+  printf '  原值 %s 会记在下面的回滚命令里。\n' "$CUR_SLEEP"
+  if [ -t 0 ]; then
+    printf '  继续？[Y/n] '
+    read -r ans
+    case "${ans:-y}" in
+      n|N) printf '\n已取消，什么都没改。\n'; exit 0 ;;
+    esac
+  fi
+  run_root pmset -c sleep 0 || die "pmset 执行失败"
   ok "已设置"
 fi
 
 # ---------- ttyskeepawake ----------
 if [ "${CUR_TTY:-1}" != "1" ]; then
   say "顺带打开 ttyskeepawake（SSH 会话连着时不进入空闲休眠）"
-  sudo pmset -c ttyskeepawake 1 && ok "已打开" || warn "设置失败，不影响主要目标"
+  run_root pmset -c ttyskeepawake 1 && ok "已打开" || warn "设置失败，不影响主要目标"
 else
   ok "ttyskeepawake 已经是 1 —— SSH 连上之后不会中途睡着"
 fi

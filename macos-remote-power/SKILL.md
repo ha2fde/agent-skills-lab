@@ -55,6 +55,26 @@ pmset -g custom | sed -n '/AC Power/,$p' | grep -E '^\s+sleep '
 
 ---
 
+## 没有终端时怎么拿到 root
+
+`pmset` 改配置必须 root，而 **`sudo` 需要一个 TTY 才能读密码**。在 agent、脚本、
+CI 这类没有终端的环境里跑会直接报：
+
+```
+sudo: a terminal is required to read the password
+```
+
+macOS 上的解法是 `osascript`，它会弹出系统原生的授权窗口，不需要 TTY：
+
+```bash
+osascript -e 'do shell script "pmset -c sleep 0" with administrator privileges'
+```
+
+配套的脚本 `setup.sh` 里的 `run_root()` 做了三级回退：
+sudo 凭据缓存 → 有 TTY 就交互 sudo → 都没有就弹授权窗口。
+
+---
+
 ## 为什么必须「开盖」
 
 **合盖是 `pmset` 唯一管不住的情况。** 合上盖子且没有外接显示器时，Mac 一定会睡，
