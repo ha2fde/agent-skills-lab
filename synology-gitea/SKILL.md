@@ -119,6 +119,39 @@ docker root ≡ 完整 root。别拿「只放开 docker」当折中方案卖给�
 
 ---
 
+## 岔路：Docker 还是套件版
+
+装之前一定会有人问「套件中心里点一下不就完了」。先澄清事实（2026-08 核对）：
+
+**官方套件中心里没有 Gitea。** 官方只有 **Git Server** —— 裸 git over SSH，
+没有网页、没有 issue / PR，基本只是个带权限的共享文件夹。要装 Gitea 得先给 DSM
+**添加第三方套件源 SynoCommunity**。SynoCommunity 确实有 Gitea（当时是 `1.26.2-29`，
+上游最新 `1.27.1`，落后约一个小版本，维护得不算差）。
+
+| | Docker（本 skill 的做法） | SynoCommunity 套件 |
+|---|---|---|
+| 来源 | Gitea 官方镜像 | 志愿者构建 + 他们自己的签名 |
+| 前置 | Container Manager（官方源） | **给整个 DSM 加一条第三方软件来源** |
+| 升级 | `docker compose pull && up -d` | 等维护者跟进；停更就卡在旧版 |
+| 配置 | compose 里的环境变量，单文件、可版本控制 | 改 `app.ini`，照样得 SSH 进去 |
+| 备份 | 一个目录 = 全部状态 | 数据散在 `@appstore` 等处 |
+| 搬家 | compose 丢到任何 Linux 就能跑 | 绑死群晖 |
+| 内存 | 多一层 Container Manager 常驻 | 原生跑，略省 |
+
+值得权衡的其实只有两条：
+
+- **套件版的实在好处是省内存。** Gitea 本身是个 Go 单文件吃不了多少，
+  但 Container Manager 要一直开着。**NAS 内存紧张（2G 那档还跑着别的）时这条有分量。**
+- **Docker 的实在好处是不引入第三方源。** 加 SynoCommunity 不是「只信这一个包」，
+  是给整个 DSM 多开一条信任链，以后从那儿装的所有东西都走它。
+  为一个能用 Docker 跑的服务开这个口子，通常不划算。
+
+**换成套件版能省掉的坑很少**：只省了写 compose 和 `--force-recreate` 那条。
+Tailscale SSH 进不了群晖、任务计划的残 PATH、没终端怎么拿 root、22 端口被 DSM 占着、
+注册页返回 200 的验证陷阱 —— 一个都省不掉。这些是**群晖本身**的税，跟用不用 Docker 无关。
+
+---
+
 ## 部署
 
 ### 端口
@@ -207,6 +240,9 @@ curl -s -o /dev/null -w '%{http_code}\n' http://<NAS-地址>:3000/<用户>/<仓�
 
 `REQUIRE_SIGNIN_VIEW` 生效时匿名访问仓库会 **303 跳到 `/user/login?redirect_to=...`**。
 这两条都过，才是真的锁上了。
+
+顺带一个副作用要有心理准备：锁上之后 **`/api/v1/version` 匿名也问不出来了**（返回空）。
+想从外面查版本号得带凭据，或者进容器 `docker exec gitea gitea --version`。
 
 ---
 
