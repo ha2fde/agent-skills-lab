@@ -34,8 +34,10 @@ git clone https://github.com/ha2fde/claude-skills.git "$HOME\.claude\skills"
 |---|---|
 | `tailscale-macos` | macOS 上装/配/验 Tailscale，尤其是开 Tailscale SSH 服务端（必须用开源 tailscaled，所有 GUI 版都开不了）。含装机脚本和一整节「哪些验证方法是死胡同」 |
 | `macos-remote-power` | 配电源策略让 Mac 插电时不休眠，随时能远程登录；拔电后自动恢复省电。一条 `pmset` 顶掉防休眠 App。含配置脚本 |
+| `synology-gitea` | 在群晖 NAS 上自建 Gitea 当 GitHub 的第三份备份，本地一条 `git push` 推多个远端。含部署脚本、群晖的三个反直觉前提、没有终端时怎么远程拿 root |
 
-这两个是一套：`tailscale-macos` 解决「怎么连进来」，`macos-remote-power` 解决「连的时候机器是醒的」。
+前两个是一套：`tailscale-macos` 解决「怎么连进来」，`macos-remote-power` 解决「连的时候机器是醒的」。
+`synology-gitea` 接在后面 —— 通道通了之后，让 NAS 干点正事。
 
 ## 写新 skill 的规矩
 
@@ -67,11 +69,14 @@ description: 这个 skill 干什么 + 什么时候该用它。写清楚触发场
    - ❌ 机器名、内网/tailnet IP、tailnet 后缀、账号邮箱、真实用户名
    - ❌ token、auth key、密码、私有仓库地址
    - ✅ 一律用 `<机器名>`、`<用户名>`、`$USER` 这种占位符，或者从命令输出里动态取
+   - ✅ 非要写个具体 IP 举例，用 `192.0.2.x`（RFC 5737 文档专用段，永远不会是真机器）
 
 新增 skill 后自查一遍：
 
 ```bash
-grep -rniE '你的机器名|你的账号|tskey-|ghp_|gho_|100\.[0-9]+\.[0-9]+\.[0-9]+' .
+grep -rniE 'tskey-|ghp_|gho_|\.ts\.net|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|@[a-z0-9.-]+\.(com|cn|net)' . \
+  | grep -vE '100\.64\.0\.0/10|127\.0\.0\.1|192\.0\.2\.'
+
 ```
 
 ## description 怎么写才会被触发

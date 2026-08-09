@@ -115,11 +115,48 @@ sudo tailscale set --operator=$USER
 
 | 平台 | 能被 Tailscale SSH 进 | 能当客户端 |
 |---|---|---|
-| Linux | ✅ | ✅ |
+| Linux（通用发行版） | ✅ | ✅ |
+| **Synology DSM** | ❌ **被硬编码禁掉** | ✅ |
 | macOS（tailscaled） | ✅ | ✅ |
 | macOS（GUI 版） | ❌ | ✅ |
 | **Windows** | ❌ **没有服务端** | ✅ |
 | iOS / Android | ❌ | 需第三方 App |
+
+**群晖 / 威联通是反直觉的例外。** DSM 是 Linux，套件版 Tailscale 也是正经 tailscaled，
+但 `tailscale set --ssh=true` 会直接被拒：
+
+```
+The Tailscale SSH server does not run on Synology.
+```
+
+⚠️ **换个装法绕不过去，别试。** 判断在 `envknob/featureknob/featureknob.go` 的
+`CanRunTailscaleSSH()` 里，而它调用的 `distro.Get()`（`version/distro/distro.go`）
+是这么认出群晖的：
+
+```go
+case haveDir("/usr/syno"):
+	return Synology
+```
+
+**看的是机器上有没有 `/usr/syno` 目录**，跟 Tailscale 从套件中心装、还是 ssh 进去
+用官方 `install.sh` 装静态二进制，毫无关系。
+
+这和 macOS 那条**机制完全不同，很容易混**：
+
+| | 判断依据 | 换装法能不能解决 |
+|---|---|---|
+| macOS GUI 版 | `version.IsSandboxedMacOS()` —— **构建产物**的属性 | ✅ 能，换开源 tailscaled |
+| 群晖 / QNAP | `distro.Get()` —— **操作系统**的属性 | ❌ 不能，装法无关 |
+
+唯一的口子是源码里的 `!envknob.UseWIPCode()`，即给 tailscaled 设
+`TAILSCALE_USE_WIP_CODE=1`。**不建议**：这个开关是全局的，放行的是守护进程里所有
+未完成代码路径，不只是 SSH；而且 Tailscale 把它挡在 WIP 后面本来就是因为没在 NAS 上测过，
+DSM 自己的 sshd 也占着 22。
+
+要 ssh 进群晖只能开
+DSM 自带的 sshd（控制面板 → 终端机和 SNMP → 启动 SSH 功能），
+然后用 DSM 防火墙把 22 端口限制到 `100.64.0.0/10`（整个 tailnet 网段），
+这样效果接近「只有 tailnet 能进」，但认证仍走密码/公钥，不是 tailnet 身份。
 
 要 ssh 进 Windows 只能开它自带的 OpenSSH Server（管理员 PowerShell）：
 
