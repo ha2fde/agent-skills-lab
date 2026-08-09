@@ -1,0 +1,38 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*~
+
+# 绝对不能进这个仓库的东西（仓库可能随时公开）
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.env
+.env.*
+secrets.*
+*-authkey*
+*.authkey
+
+# 体积
+*.zip
+*.pdf
+*.pptx
+*.mp4
+*.bin
+*.safetensors
+
+# 临时
+__pycache__/
+*.pyc
+.venv/
+node_modules/
