@@ -6,6 +6,8 @@
 - macos-remote-power：operations
 - synology-gitea：development
 
+- workbuddy-daily-checkin：productivity，保留 MIT 许可证
+
 ## 下一批
 
 优先从真实 DGX Spark 部署记录提炼 dgx-spark-local-llm。

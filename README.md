@@ -13,6 +13,8 @@ A growing collection of practical Agent Skills for infrastructure, security, dev
 | 系统运维 · operations | [macos-remote-power](skills/macos-remote-power/SKILL.md) | Mac 插电保持唤醒、远程访问与回滚 | 历史经验迁移；本次未做硬件复测 |
 | 开发工具 · development | [synology-gitea](skills/synology-gitea/SKILL.md) | 群晖 Gitea 与多远端 Git 备份 | 历史经验迁移；本次未做硬件复测 |
 
+| 效率工具 · productivity | [workbuddy-daily-checkin](skills/workbuddy-daily-checkin/SKILL.md) | 腾讯 WorkBuddy 每日签到领积分 | 结构与语法检查；未复测活动 |
+
 ## 安装
 
 当前仓库仍叫 `claude-skills`，且为私有仓库。需先配置本机 GitHub 访问权限。不要把凭据写进命令或对话。
@@ -54,4 +56,4 @@ npx skills add ha2fde/claude-skills --skill synology-gitea -g -a cursor
 ## 使用与授权
 
 执行脚本前检查目标平台、参数与变更范围。原有脚本保留，未在本次迁移中执行安装操作。
-当前未授予统一开源许可证；仓库公开可读也不等于获得再分发许可。正式公开发布前由维护者确定许可证。
+WorkBuddy 签到 Skill 保留原 MIT 许可证；其他内容当前未授予统一开源许可证；仓库公开可读也不等于获得再分发许可。正式公开发布前由维护者确定许可证。

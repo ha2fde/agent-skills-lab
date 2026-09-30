@@ -23,3 +23,9 @@
 
 页面标题采用 Agent Skills Lab；GitHub slug 暂仍是 claude-skills。
 改名目标 agent-skills-lab。仓库保持私有；公开发布前检查完整历史与许可证。
+
+## WorkBuddy 签到 Skill
+
+从 ha2fde/workbuddy-daily-checkin 导入至 skills/workbuddy-daily-checkin/，保留名称、原脚本与 MIT 许可。
+统一 frontmatter，修正“只读登录态”“无副作用”说明及平台专有定时指令。
+原独立仓库保留，后续维护以本统一库为主；本次不创建计划任务、不运行领取。
