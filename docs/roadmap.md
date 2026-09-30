@@ -5,7 +5,6 @@
 - tailscale-macos：operations
 - macos-remote-power：operations
 - synology-gitea：development
-
 - workbuddy-daily-checkin：productivity，保留 MIT 许可证
 
 ## 下一批
@@ -18,4 +17,4 @@
 
 ## 发布准备
 
-完成仓库正式命名、客户端安装验证、完整历史检查和许可证选择后，准备公共发布。
+仓库正式命名已完成。完成客户端安装验证、完整历史检查和许可证选择后，准备公共发布。

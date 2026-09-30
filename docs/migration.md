@@ -21,8 +21,12 @@
 
 ## 仓库名称与可见性
 
-页面标题采用 Agent Skills Lab；GitHub slug 暂仍是 claude-skills。
-改名目标 agent-skills-lab。仓库保持私有；公开发布前检查完整历史与许可证。
+仓库已正式改名为 ha2fde/agent-skills-lab，保持私有。
+已有源码 checkout 可更新远端：
+```bash
+git remote set-url origin https://github.com/ha2fde/agent-skills-lab.git
+```
+这只更新源码仓库地址；旧技能安装目录仍需按上面的布局迁移。公开发布前检查完整历史与许可证。
 
 ## WorkBuddy 签到 Skill
 

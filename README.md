@@ -12,21 +12,20 @@ A growing collection of practical Agent Skills for infrastructure, security, dev
 | 系统运维 · operations | [tailscale-macos](skills/tailscale-macos/SKILL.md) | Mac Tailscale 安装、SSH 与排障 | 历史经验迁移；本次未做硬件复测 |
 | 系统运维 · operations | [macos-remote-power](skills/macos-remote-power/SKILL.md) | Mac 插电保持唤醒、远程访问与回滚 | 历史经验迁移；本次未做硬件复测 |
 | 开发工具 · development | [synology-gitea](skills/synology-gitea/SKILL.md) | 群晖 Gitea 与多远端 Git 备份 | 历史经验迁移；本次未做硬件复测 |
-
 | 效率工具 · productivity | [workbuddy-daily-checkin](skills/workbuddy-daily-checkin/SKILL.md) | 腾讯 WorkBuddy 每日签到领积分 | 结构与语法检查；未复测活动 |
 
 ## 安装
 
-当前仓库仍叫 `claude-skills`，且为私有仓库。需先配置本机 GitHub 访问权限。不要把凭据写进命令或对话。
+正式仓库名为 `agent-skills-lab`，目前为私有仓库。需先配置本机 GitHub 访问权限。不要把凭据写进命令或对话。
 
 ```bash
-npx skills add ha2fde/claude-skills --list
-npx skills add ha2fde/claude-skills --skill tailscale-macos -g -a claude-code
-npx skills add ha2fde/claude-skills --skill macos-remote-power -g -a codex
-npx skills add ha2fde/claude-skills --skill synology-gitea -g -a cursor
+npx skills add ha2fde/agent-skills-lab --list
+npx skills add ha2fde/agent-skills-lab --skill tailscale-macos -g -a claude-code
+npx skills add ha2fde/agent-skills-lab --skill macos-remote-power -g -a codex
+npx skills add ha2fde/agent-skills-lab --skill synology-gitea -g -a cursor
+npx skills add ha2fde/agent-skills-lab --skill workbuddy-daily-checkin -g -a claude-code
 ```
 
-拟定正式仓库名：`agent-skills-lab`。实际改名完成后，再更新以上安装源。
 旧版直接 clone 到 `~/.claude/skills` 的用户，先阅读 [迁移说明](docs/migration.md)，不要直接拉取新布局。
 
 ## 长期规划
