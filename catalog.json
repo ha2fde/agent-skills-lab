@@ -1,0 +1,44 @@
+{
+  "title": "Agent Skills Lab",
+  "version": "1.0.0",
+  "categories": [
+    "ai-infra",
+    "security",
+    "operations",
+    "development",
+    "productivity"
+  ],
+  "skills": [
+    {
+      "name": "tailscale-macos",
+      "category": "operations",
+      "path": "skills/tailscale-macos",
+      "version": "1.0.0",
+      "validation": "structure-only"
+    },
+    {
+      "name": "macos-remote-power",
+      "category": "operations",
+      "path": "skills/macos-remote-power",
+      "version": "1.0.0",
+      "validation": "structure-only"
+    },
+    {
+      "name": "synology-gitea",
+      "category": "development",
+      "path": "skills/synology-gitea",
+      "version": "1.0.0",
+      "validation": "structure-only"
+    },
+    {
+      "name": "workbuddy-daily-checkin",
+      "category": "productivity",
+      "path": "skills/workbuddy-daily-checkin",
+      "version": "1.0.1",
+      "validation": "structure-only",
+      "license": "MIT",
+      "source": "ha2fde/workbuddy-daily-checkin",
+      "sourceCommit": "c40a65f12aed797f9f290f073219c89f50490089"
+    }
+  ]
+}
