@@ -1,90 +1,57 @@
-# claude-skills
+# Agent Skills Lab
+**把解决过的问题，变成可以复用的 Agent 能力。**
 
-自用的 agent skills。这个仓库**就是** `~/.claude/skills/` 本身——clone 到那个路径即可，
-不需要 marketplace、不需要安装步骤。
+A growing collection of practical Agent Skills for infrastructure, security, development and productivity.
 
-## 为什么是这个路径
+维护者：[@ha2fde](https://github.com/ha2fde)。采用一套 SKILL.md，面向 Claude Code、Codex、Cursor、OpenCode 等支持 Agent Skills 的工具。安装支持不等于每个工作流都已在每个客户端实测。
 
-`~/.claude/skills/` 是 Claude Code 和 opencode 的**共同**发现路径：
+## 技能目录
 
-| 工具 | 读取位置 |
-|---|---|
-| Claude Code | `~/.claude/skills/*/SKILL.md`、项目里 `.claude/skills/*/SKILL.md` |
-| opencode | `~/.config/opencode/skills/`、**`~/.claude/skills/`**、`~/.agents/skills/`，项目里同理 |
+| 分类 | Skill | 用途 | 验证状态 |
+|---|---|---|---|
+| 系统运维 · operations | [tailscale-macos](skills/tailscale-macos/SKILL.md) | Mac Tailscale 安装、SSH 与排障 | 历史经验迁移；本次未做硬件复测 |
+| 系统运维 · operations | [macos-remote-power](skills/macos-remote-power/SKILL.md) | Mac 插电保持唤醒、远程访问与回滚 | 历史经验迁移；本次未做硬件复测 |
+| 开发工具 · development | [synology-gitea](skills/synology-gitea/SKILL.md) | 群晖 Gitea 与多远端 Git 备份 | 历史经验迁移；本次未做硬件复测 |
 
-放这儿两边都认，一次维护两处生效。
+## 安装
 
-## 装到新机器
-
-```bash
-# macOS / Linux
-git clone https://github.com/ha2fde/claude-skills.git ~/.claude/skills
-
-# Windows (PowerShell)
-git clone https://github.com/ha2fde/claude-skills.git "$HOME\.claude\skills"
-```
-
-目标目录必须不存在或为空。已经有内容的话先备份再合并。
-
-同步：`git -C ~/.claude/skills pull`
-
-## 现有 skill
-
-| 名字 | 干什么 |
-|---|---|
-| `tailscale-macos` | macOS 上装/配/验 Tailscale，尤其是开 Tailscale SSH 服务端（必须用开源 tailscaled，所有 GUI 版都开不了）。含装机脚本和一整节「哪些验证方法是死胡同」 |
-| `macos-remote-power` | 配电源策略让 Mac 插电时不休眠，随时能远程登录；拔电后自动恢复省电。一条 `pmset` 顶掉防休眠 App。含配置脚本 |
-| `synology-gitea` | 在群晖 NAS 上自建 Gitea 当 GitHub 的第三份备份，本地一条 `git push` 推多个远端。含部署脚本、群晖的三个反直觉前提、没有终端时怎么远程拿 root |
-
-前两个是一套：`tailscale-macos` 解决「怎么连进来」，`macos-remote-power` 解决「连的时候机器是醒的」。
-`synology-gitea` 接在后面 —— 通道通了之后，让 NAS 干点正事。
-
-## 写新 skill 的规矩
-
-目录结构：
-
-```
-<skill-名字>/
-├── SKILL.md          必须全大写
-└── <随便什么辅助文件>   脚本、模板、参考资料
-```
-
-`SKILL.md` 开头必须是 YAML frontmatter：
-
-```yaml
----
-name: skill-的名字
-description: 这个 skill 干什么 + 什么时候该用它。写清楚触发场景，模型靠这句话决定要不要加载。
----
-```
-
-**四条硬要求**：
-
-1. **`SKILL.md` 全大写**，`name` 和 `description` 必填，缺一个就不会被发现
-2. **名字全局唯一**——跟其它来源的 skill 重名会被丢掉
-3. **正文不要写死工具名**。别写「用 Bash 工具执行…」，写「运行以下命令」。
-   `allowed-tools` 这类字段是 Claude Code 专有的，opencode 有自己的 `permission.skill` 机制，
-   写死了就只能在一边用
-4. **不放隐私**。仓库可能随时从 private 切成 public，所以从第一天就当它是公开的：
-   - ❌ 机器名、内网/tailnet IP、tailnet 后缀、账号邮箱、真实用户名
-   - ❌ token、auth key、密码、私有仓库地址
-   - ✅ 一律用 `<机器名>`、`<用户名>`、`$USER` 这种占位符，或者从命令输出里动态取
-   - ✅ 非要写个具体 IP 举例，用 `192.0.2.x`（RFC 5737 文档专用段，永远不会是真机器）
-
-新增 skill 后自查一遍：
+当前仓库仍叫 `claude-skills`，且为私有仓库。需先配置本机 GitHub 访问权限。不要把凭据写进命令或对话。
 
 ```bash
-grep -rniE 'tskey-|ghp_|gho_|\.ts\.net|[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+|@[a-z0-9.-]+\.(com|cn|net)' . \
-  | grep -vE '100\.64\.0\.0/10|127\.0\.0\.1|192\.0\.2\.'
-
+npx skills add ha2fde/claude-skills --list
+npx skills add ha2fde/claude-skills --skill tailscale-macos -g -a claude-code
+npx skills add ha2fde/claude-skills --skill macos-remote-power -g -a codex
+npx skills add ha2fde/claude-skills --skill synology-gitea -g -a cursor
 ```
 
-## description 怎么写才会被触发
+拟定正式仓库名：`agent-skills-lab`。实际改名完成后，再更新以上安装源。
+旧版直接 clone 到 `~/.claude/skills` 的用户，先阅读 [迁移说明](docs/migration.md)，不要直接拉取新布局。
 
-`description` 是唯一的匹配依据，写成「这个 skill 是关于 X 的」没用。要写**用户会说什么话**：
+## 长期规划
 
-> ❌ `description: Tailscale 相关知识`
->
-> ✅ `description: 在 macOS 上安装、配置、验证和排查 Tailscale……当用户要在 Mac 上装
-> Tailscale、抱怨 Tailscale SSH 打不开、想让别的机器 ssh 进 Mac、或者要确认 SSH
-> 服务端到底起没起来时使用。`
+| 分类 | 后续方向 |
+|---|---|
+| ai-infra | DGX Spark、本地模型部署、模型验收与性能评测 |
+| security | 代码审计、AVR、Fuzzing、漏洞验证、供应链安全 |
+| operations | 操作系统、远程连接、服务维护 |
+| development | Git、开发环境、构建与自动化 |
+| productivity | 文档、数据处理、日常工作流 |
+
+未来方向仅为规划；不创建空 Skill，不把待验证流程标为可用。
+
+## 仓库约定
+
+- 正式技能统一位于 `skills/<skill-name>/`，分类记录在 [catalog.json](catalog.json)，避免分类调整导致安装路径变化。
+- 技能保持独立，随技能一起分发必要脚本、参考资料和资产。
+- 模板位于 `templates/SKILL.template.md`，避免被识别成正式 Skill。
+- 名称用小写英文与连字符，描述写清任务与触发条件。
+- 用真实使用记录区分“结构检查通过”和“目标机器验证通过”。
+
+参阅 [设计规范](docs/skill-design-guide.md)、[贡献规范](CONTRIBUTING.md)、[发布指南](docs/publishing.md) 和 [路线图](docs/roadmap.md)。
+
+格式与安装参考：[Agent Skills](https://agentskills.io/specification) · [skills CLI](https://github.com/vercel-labs/skills)。
+
+## 使用与授权
+
+执行脚本前检查目标平台、参数与变更范围。原有脚本保留，未在本次迁移中执行安装操作。
+当前未授予统一开源许可证；仓库公开可读也不等于获得再分发许可。正式公开发布前由维护者确定许可证。

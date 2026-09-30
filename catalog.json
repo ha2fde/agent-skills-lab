@@ -1,0 +1,34 @@
+{
+  "title": "Agent Skills Lab",
+  "version": "1.0.0",
+  "categories": [
+    "ai-infra",
+    "security",
+    "operations",
+    "development",
+    "productivity"
+  ],
+  "skills": [
+    {
+      "name": "tailscale-macos",
+      "category": "operations",
+      "path": "skills/tailscale-macos",
+      "version": "1.0.0",
+      "validation": "structure-only"
+    },
+    {
+      "name": "macos-remote-power",
+      "category": "operations",
+      "path": "skills/macos-remote-power",
+      "version": "1.0.0",
+      "validation": "structure-only"
+    },
+    {
+      "name": "synology-gitea",
+      "category": "development",
+      "path": "skills/synology-gitea",
+      "version": "1.0.0",
+      "validation": "structure-only"
+    }
+  ]
+}
