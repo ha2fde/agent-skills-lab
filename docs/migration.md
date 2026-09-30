@@ -21,7 +21,12 @@
 
 ## 仓库名称与可见性
 
-仓库已正式改名为 ha2fde/agent-skills-lab，目前仍为私有。
+仓库已正式改名为 ha2fde/agent-skills-lab，并于 2026-09-30 公开，保留现有提交历史。
+已有源码 checkout 可更新远端：
+```bash
+git remote set-url origin https://github.com/ha2fde/agent-skills-lab.git
+```
+这只更新源码仓库地址；旧技能安装目录仍需按上面的布局迁移。
 
 ## WorkBuddy 签到 Skill
 

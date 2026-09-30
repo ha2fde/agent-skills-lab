@@ -16,7 +16,7 @@ A growing collection of practical Agent Skills for infrastructure, security, dev
 
 ## 安装
 
-正式仓库名为 `agent-skills-lab`，目前为私有仓库。需先配置本机 GitHub 访问权限。不要把凭据写进命令或对话。
+正式仓库名为 `agent-skills-lab`，已公开。可使用以下命令列出并安装技能：
 
 ```bash
 npx skills add ha2fde/agent-skills-lab --list
