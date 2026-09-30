@@ -21,15 +21,10 @@
 
 ## 仓库名称与可见性
 
-仓库已正式改名为 ha2fde/agent-skills-lab，保持私有。
-已有源码 checkout 可更新远端：
-```bash
-git remote set-url origin https://github.com/ha2fde/agent-skills-lab.git
-```
-这只更新源码仓库地址；旧技能安装目录仍需按上面的布局迁移。公开发布前检查完整历史与许可证。
+仓库已正式改名为 ha2fde/agent-skills-lab，目前仍为私有。
 
 ## WorkBuddy 签到 Skill
 
 从 ha2fde/workbuddy-daily-checkin 导入至 skills/workbuddy-daily-checkin/，保留名称、原脚本与 MIT 许可。
 统一 frontmatter，修正“只读登录态”“无副作用”说明及平台专有定时指令。
-原独立仓库保留，后续维护以本统一库为主；本次不创建计划任务、不运行领取。
+原独立仓库已于 2026-09-30 在迁移复核后删除；脚本与 MIT 许可证内容一致，Skill 说明已标准化。后续维护与安装统一使用 ha2fde/agent-skills-lab。旧仓库安装地址失效；本次不创建计划任务、不运行领取。
