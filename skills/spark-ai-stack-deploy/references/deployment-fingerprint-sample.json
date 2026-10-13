@@ -1,0 +1,98 @@
+{
+  "generated_at": "2026-09-30T17:55+08:00",
+  "host": {
+    "machine": "NVIDIA DGX Spark (ThinkStation PGX, GB10 Grace Blackwell)",
+    "arch": "aarch64",
+    "driver": "580.178.04",
+    "cuda": "13.0 (via NGC 26.09 base)",
+    "docker": "29.6.2",
+    "container_toolkit": "1.20.1",
+    "memory": "128GB unified",
+    "user": "deployuser@192.0.2.10"
+  },
+  "workloads": {
+    "llm_vllm": {
+      "role": "coding / chat (OpenAI-compatible API)",
+      "access": "OpenCode (Windows) -> http://192.0.2.10:8000/v1",
+      "engine": "vLLM 0.29.0",
+      "image": "nvcr.io/nvidia/vllm:26.09-py3",
+      "image_id": "sha256:8ec4dbb7a3d131cd1799500e4e73cdde1e76523ae72849dc8fdb12b58ed2b846",
+      "compose": "~/ai-stack/compose/qwen38-vllm/compose.yaml",
+      "model": "nvidia/Qwen3.8-27B-NVFP4",
+      "model_snapshot": "482ca0f3832238542f8f5295dde86b5f22711d80",
+      "model_size": "19G",
+      "quantization": "NVFP4 (modelopt_mixed)",
+      "port": "8000 (OpenAI API)"
+    },
+    "image_diffusers_A": {
+      "role": "image generation - headless python API (option A)",
+      "engine": "HuggingFace Diffusers QwenImage21Pipeline",
+      "image": "qwen-image21-diffusers:v1 (custom, from nvcr.io/nvidia/pytorch:26.09-py3)",
+      "image_id": "sha256:0458137d1a1710f51963866818fa09c0a47cbdd90cdec53c92379e2339ce3096",
+      "base_image": "nvcr.io/nvidia/pytorch:26.09-py3",
+      "base_image_id": "sha256:a2d1be1817a6ecf66c56d60e4ab76c1ff745b407c31b4a7a76c1021f8a013d53",
+      "compose": "~/ai-stack/compose/qwen-image21/compose.yaml",
+      "python_versions": {
+        "torch": "2.14.0a0+nv26.09",
+        "torchao": "0.18.0",
+        "transformers": "5.17.0",
+        "diffusers": "0.41.0.dev0",
+        "diffusers_commit": "031b2798addadd1652db7cfba50eacc1079245cf"
+      },
+      "model": "Qwen/Qwen-Image-2.1 (hf-cache format)",
+      "model_snapshot": "d26bb61231c349cf6b7896fa83353113880e1ba3",
+      "model_size": "30G",
+      "precision": "BF16",
+      "notes": "generate.py patched with local_files_only=True to avoid HF-hub network hang on restart"
+    },
+    "image_api_B": {
+      "role": "image generation - thin Web UI + OpenAI-compatible API over the SAME Diffusers engine (option B)",
+      "access": "browser http://192.0.2.10:7860  |  POST /v1/images/generations",
+      "engine": "reuses qwen-image21-diffusers:v1 (no new engine, no new weights)",
+      "image": "qwen-image21-api:v1",
+      "image_id": "sha256:a1b39daab1e36d2e733b6a2a42d7c5f271ffa4e09bc65934e96b4064aabe0960",
+      "base_image": "qwen-image21-diffusers:v1",
+      "compose": "~/ai-stack/compose/qwen-image21-api/compose.yaml",
+      "added": "fastapi + uvicorn",
+      "model_source": "shared readonly hf-cache mount (same weights as A, no duplication)",
+      "port": "7860",
+      "endpoints": ["/ (built-in web UI)", "/health", "/v1/images/generations", "/generate"],
+      "verified": "PASS - model ready; /v1/images/generations produced real PNG"
+    },
+    "comfyui_C": {
+      "role": "image generation - independent node-based engine + visual workflow UI (option C)",
+      "access": "browser http://192.0.2.10:8188  -> Templates -> Qwen Image 2.1",
+      "engine": "ComfyUI 0.38.0 (self-contained; NOT built on Diffusers)",
+      "image": "comfyui:v1",
+      "image_id": "sha256:1da71e704f2bc4c48ad92a1e0f85dbff77bed019502c3e2840e420d1f401b2de",
+      "base_image": "nvcr.io/nvidia/pytorch:26.09-py3 (arm64/cu130, torch 2.14 preserved)",
+      "compose": "~/ai-stack/compose/comfyui/compose.yaml",
+      "comfyui_version": "0.38.0",
+      "templates_version": "0.11.70",
+      "port": "8188",
+      "model_repo": "Comfy-Org/Qwen-Image-2.1 (INT8 set; ComfyUI layout, NOT shared with A/B hf-cache)",
+      "model_files": {
+        "diffusion_models/qwen_image_2.1_int8_convrot.safetensors": "7256783064 bytes",
+        "text_encoders/qwen3vl_8b_int8_convrot.safetensors": "9350798360 bytes",
+        "text_encoders/qwen3.5_9b_qwen_image_2.1_pe_t2i.int8_convrot.safetensors": "9471072252 bytes",
+        "vae/qwen_image_2.1_vae_bf16.safetensors": "675509688 bytes"
+      },
+      "model_dir": "~/ai-stack/comfyui/models/",
+      "verified": "server Up, web UI served from :8188, all 4 weights mounted & visible in container; first image generation to be confirmed via template in browser"
+    }
+  },
+  "download_channel": {
+    "fastest": "hf-mirror.com direct from Spark (~10.5 MB/s)",
+    "avoid": "Clash proxy for large files (times out); huggingface.co direct (blocked - Spark MAC not whitelisted)",
+    "token_required": false
+  },
+  "verification": {
+    "V0_V5": "PASS (host, gpu smoke, vllm health + real chat)",
+    "V6_image_gen_A": "PASS (v6_result.png 1024x1024 RGBA, 1.8MB)",
+    "V7_switch": "PASS (ai.sh use llm/image, frees ~92G)",
+    "V8_restart_recovery": "PASS (container restarts to Up; post-restart generation OK after local_files_only fix)",
+    "B_api_gen": "PASS (real PNG via /v1/images/generations)",
+    "C_server": "PASS (comfyui 0.38.0 Up on :8188, web UI OK, weights mounted)",
+    "C_image_gen": "PENDING - templates are frontend-bundled (no /api/templates, returns 404); generate from browser via Qwen Image 2.1 template"
+  }
+}

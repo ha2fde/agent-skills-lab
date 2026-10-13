@@ -1,0 +1,38 @@
+# ComfyUI (C 方案) —— 独立容器，基于已验证的 arm64/cu130 底座
+# 不碰 Host 软件栈；与 A(qwen-image21) / B(qwen-image21-api) 完全独立。
+FROM nvcr.io/nvidia/pytorch:26.09-py3
+
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+ENV HTTP_PROXY=$HTTP_PROXY \
+    HTTPS_PROXY=$HTTPS_PROXY \
+    NO_PROXY=$NO_PROXY \
+    http_proxy=$HTTP_PROXY \
+    https_proxy=$HTTPS_PROXY
+
+WORKDIR /opt
+# ComfyUI v0.39.x 才完整支持「用本地 Qwen-Image-2.1 INT8 权重离线出图」：
+#   v0.38.0 只注册了云端 API 节点（QwenImageTextToImageApi），本地模型链跑不通（出纯噪声或需登录）。
+# ⚠️ 必须 pin 到明确 tag：clone main 分支会导致同一份 Dockerfile 在不同时间构建出不同版本，破坏可复现性。
+#    已实测能本地出图的版本是 v0.39.2（配方见 SKILL §5.8）。升级前请先确认本地出图配方仍适配。
+ARG COMFYUI_VERSION=v0.39.2
+RUN git clone --depth 1 --branch ${COMFYUI_VERSION} https://github.com/Comfy-Org/ComfyUI.git /opt/ComfyUI
+WORKDIR /opt/ComfyUI
+
+# 安装 Python 依赖；若某个原生 wheel 在 arm64 上装不上，
+# 则回退为排除已知 arm 不友好的原生包后再装，保证主体能装上。
+# 底座自带 torch 2.14 / cu130，requirements.txt 不锁 torch，不会被降级。
+RUN pip install --no-cache-dir -r requirements.txt \
+ || pip install --no-cache-dir $(grep -vE 'sageattention|trampoline|kornia_rs|xformers|cupy' requirements.txt)
+
+# arm64 原生增强包（best-effort）：装不上也不影响出图（走 torch SDPA）
+RUN pip install --no-cache-dir kornia_rs trampoline sageattention 2>/dev/null \
+ || pip install --no-cache-dir --no-deps kornia_rs trampoline sageattention 2>/dev/null \
+ || true
+
+# 校验底座 torch 未被改动
+RUN python -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"
+
+EXPOSE 8188
+CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188"]

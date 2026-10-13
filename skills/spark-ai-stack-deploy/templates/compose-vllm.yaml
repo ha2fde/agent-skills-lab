@@ -1,0 +1,49 @@
+services:
+  qwen38-vllm:
+    image: nvcr.io/nvidia/vllm:26.09-py3
+    container_name: qwen38-vllm
+    restart: unless-stopped
+    ipc: host
+    platform: linux/arm64
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - /home/deployuser/ai-stack/hf-cache:/root/.cache/huggingface
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    command:
+      - vllm
+      - serve
+      - --model
+      - nvidia/Qwen3.8-27B-NVFP4
+      - --port
+      - "8000"
+      - --quantization
+      - modelopt
+      - --kv-cache-dtype
+      - fp8_e4m3
+      - --gpu-memory-utilization
+      - "0.70"
+      - --max-model-len
+      - "262144"
+      - --max-num-seqs
+      - "8"
+      - --max-num-batched-tokens
+      - "8192"
+      - --enable-chunked-prefill
+      - --reasoning-parser
+      - qwen3
+      - --enable-auto-tool-choice
+      - --tool-call-parser
+      - qwen3_coder
+      - --speculative-config
+      - '{"method":"mtp","num_speculative_tokens":5}'

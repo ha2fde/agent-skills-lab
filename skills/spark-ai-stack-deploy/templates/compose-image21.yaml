@@ -1,0 +1,24 @@
+services:
+  qwen-image21:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: qwen-image21-diffusers:v1
+    container_name: qwen-image21
+    restart: unless-stopped
+    ipc: host
+    platform: linux/arm64
+
+    volumes:
+      - /home/deployuser/ai-stack/hf-cache:/root/.cache/huggingface
+      - /home/deployuser/ai-stack/input:/workspace/input
+      - /home/deployuser/ai-stack/output:/workspace/output
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

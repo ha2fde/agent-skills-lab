@@ -1,0 +1,12 @@
+FROM qwen-image21-diffusers:v1
+ARG HTTPS_PROXY
+ARG HTTP_PROXY
+ARG NO_PROXY
+ENV HTTPS_PROXY=$HTTPS_PROXY
+ENV HTTP_PROXY=$HTTP_PROXY
+ENV NO_PROXY=$NO_PROXY
+RUN pip install --no-cache-dir fastapi uvicorn
+WORKDIR /workspace
+COPY server.py /workspace/server.py
+EXPOSE 7860
+CMD ["python", "-m", "uvicorn", "server:app", "--host", "0.0.0.0", "--port", "7860"]

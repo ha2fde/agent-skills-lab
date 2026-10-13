@@ -1,0 +1,26 @@
+FROM nvcr.io/nvidia/pytorch:26.09-py3
+
+# 构建期联网：经由 Windows Clash 代理（与 Host daemon 代理一致）
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+ENV HTTP_PROXY=$HTTP_PROXY \
+    HTTPS_PROXY=$HTTPS_PROXY \
+    NO_PROXY=$NO_PROXY \
+    HF_HUB_DISABLE_XET=1
+
+WORKDIR /workspace
+
+RUN python -m pip install --upgrade pip && \
+    python -m pip install \
+      "transformers>=5.17" \
+      accelerate \
+      pillow \
+      huggingface_hub \
+      "torchao==0.18.0" && \
+    python -m pip install \
+      "git+https://github.com/huggingface/diffusers"
+
+COPY generate.py /workspace/generate.py
+
+CMD ["sleep", "infinity"]

@@ -1,0 +1,28 @@
+services:
+  comfyui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        HTTP_PROXY: http://192.0.2.20:7897
+        HTTPS_PROXY: http://192.0.2.20:7897
+        NO_PROXY: localhost,127.0.0.1,::1,192.0.2.0/24
+    image: comfyui:v1
+    container_name: comfyui
+    restart: unless-stopped
+    ipc: host
+    platform: linux/arm64
+    ports:
+      - "8188:8188"
+    volumes:
+      # ComfyUI 权重（已按 diffusion_models/text_encoders/vae 布局就位）
+      - /home/deployuser/ai-stack/comfyui/models:/opt/ComfyUI/models
+      - /home/deployuser/ai-stack/input:/opt/ComfyUI/input
+      - /home/deployuser/ai-stack/output:/opt/ComfyUI/output
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

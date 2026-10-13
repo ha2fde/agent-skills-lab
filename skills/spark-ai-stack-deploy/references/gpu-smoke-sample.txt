@@ -1,0 +1,91 @@
+Unable to find image 'nvcr.io/nvidia/cuda:13.0.1-devel-ubuntu24.04' locally
+13.0.1-devel-ubuntu24.04: Pulling from nvidia/cuda
+cc43ec4c1381: Pulling fs layer
+c7ba38867e8d: Pulling fs layer
+c88eadd06616: Pulling fs layer
+fd2e70db7702: Pulling fs layer
+c03b8ec8dd33: Pulling fs layer
+2cb956a72162: Pulling fs layer
+30fc8198a31e: Pulling fs layer
+85eb6b47da08: Pulling fs layer
+cae1e96ffa7d: Pulling fs layer
+817eab9d3c52: Pulling fs layer
+03f66a4525ea: Pulling fs layer
+fd2e70db7702: Waiting
+c03b8ec8dd33: Waiting
+2cb956a72162: Waiting
+30fc8198a31e: Waiting
+85eb6b47da08: Waiting
+cae1e96ffa7d: Waiting
+817eab9d3c52: Waiting
+c7ba38867e8d: Verifying Checksum
+c7ba38867e8d: Download complete
+fd2e70db7702: Verifying Checksum
+fd2e70db7702: Download complete
+c03b8ec8dd33: Verifying Checksum
+c03b8ec8dd33: Download complete
+cc43ec4c1381: Verifying Checksum
+cc43ec4c1381: Download complete
+30fc8198a31e: Verifying Checksum
+30fc8198a31e: Download complete
+85eb6b47da08: Verifying Checksum
+85eb6b47da08: Download complete
+cc43ec4c1381: Pull complete
+c7ba38867e8d: Pull complete
+cae1e96ffa7d: Verifying Checksum
+cae1e96ffa7d: Download complete
+c88eadd06616: Verifying Checksum
+c88eadd06616: Download complete
+03f66a4525ea: Verifying Checksum
+03f66a4525ea: Download complete
+c88eadd06616: Pull complete
+fd2e70db7702: Pull complete
+c03b8ec8dd33: Pull complete
+2cb956a72162: Verifying Checksum
+2cb956a72162: Download complete
+2cb956a72162: Pull complete
+30fc8198a31e: Pull complete
+85eb6b47da08: Pull complete
+cae1e96ffa7d: Pull complete
+817eab9d3c52: Verifying Checksum
+817eab9d3c52: Download complete
+817eab9d3c52: Pull complete
+03f66a4525ea: Pull complete
+Digest: sha256:7d2f6a8c2071d911524f95061a0db363e24d27aa51ec831fcccf9e76eb72bc92
+Status: Downloaded newer image for nvcr.io/nvidia/cuda:13.0.1-devel-ubuntu24.04
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 13.0.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+Wed Sep 30 02:17:55 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GB10                    On  |   0000000F:01:00.0 Off |                  N/A |
+| N/A   37C    P8              3W /  N/A  | Not Supported          |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+SMOKE_RC=0

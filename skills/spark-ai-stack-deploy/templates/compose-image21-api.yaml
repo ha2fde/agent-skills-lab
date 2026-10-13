@@ -1,0 +1,29 @@
+services:
+  qwen-image21-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        HTTP_PROXY: http://192.0.2.20:7897
+        HTTPS_PROXY: http://192.0.2.20:7897
+        NO_PROXY: localhost,127.0.0.1,::1,192.0.2.0/24
+    image: qwen-image21-api:v1
+    container_name: qwen-image21-api
+    restart: unless-stopped
+    ipc: host
+    platform: linux/arm64
+    ports:
+      - "7860:7860"
+    environment:
+      - HF_HOME=/root/.cache/huggingface
+    volumes:
+      - /home/deployuser/ai-stack/hf-cache:/root/.cache/huggingface
+      - /home/deployuser/ai-stack/input:/workspace/input
+      - /home/deployuser/ai-stack/output:/workspace/output
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
