@@ -30,3 +30,13 @@ Use when the user requests a 微信公众号 article, rewrite, cover, image, dra
 ## References
 - [Visual and QA checklist](references/quality-checklist.md)
 - [Incident log](references/incidents.md)
+
+## Image bridge: mandatory preflight (2026-11-06)
+
+- **Do not equate a generated ChatGPT image preview with accessible bytes.** Before promising an upload, obtain a real local file or reachable HTTPS download URL. An image-generation result identifier is not a file path, URL, or Base64 content. Never invent a sandbox path.
+- Check the currently connected MCP schema on every run. The hosted `wechat_upload_image` currently accepts either `image_url` (server-downloadable HTTPS) **or** `image_base64` (raw bytes, maximum 128 KiB), not both. `purpose=cover|body`; cover max 10 MiB and body max 1 MiB through URL transport. The local/open-source MCP may have different limits; follow the actual tool contract, not an assumed universal limit.
+- **Preferred reliable path:** use the approved image file, flatten and convert to RGB JPEG, resize appropriately (cover 900×383), compress to <=128 KiB if using Base64, then upload raw file bytes encoded as Base64. Check JPEG magic bytes and decode before upload. If larger, use a genuinely reachable HTTPS image URL. Do not use an unrelated existing cover as a silent fallback.
+- **Error-code discipline:** WeChat 40113 and 40137 were returned during attempted uploads on 2026-11-06. Treat these as observed API errors, not proof of a specific root cause. A 1×1 diagnostic PNG returning 40137 is not evidence that a valid, correctly encoded approved JPEG would fail. Record input format, actual size, tool result, and independently verified outcome. Do not repeat unverified speculative diagnoses.
+- **Gate draft readiness:** Cover uploaded and media_id confirmed; body illustrations uploaded and their WeChat-hosted URLs inserted; full inline CSS saved; draft read back; exact image refs, titles, references and highlighted spans checked. If any gate fails, label draft **incomplete**. Never declare a complete illustrated article from a text-only draft.
+- **Do not overwrite user-approved visuals or text** while debugging. If updating an existing draft, fetch its current content/hash and preserve its identity rather than creating duplicate drafts.
+- **ChatGPT installation limitation:** GitHub publication makes this Skill installable by compatible clients via their Skill managers. It does not automatically register a new skill inside this ChatGPT session. Never claim it is installed or automatically loaded without an installation/availability check.
