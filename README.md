@@ -1,34 +1,44 @@
 # Agent Skills Lab
-**把解决过的问题，变成可以复用的 Agent 能力。**
 
-A growing collection of practical Agent Skills for infrastructure, security, development and productivity.
+**Turn solved problems into reusable Agent Skills.**
 
-维护者：[@ha2fde](https://github.com/ha2fde)。采用一套 SKILL.md，面向 Claude Code、Codex、Cursor、OpenCode 等支持 Agent Skills 的工具。安装支持不等于每个工作流都已在每个客户端实测。
+A practical collection of Agent Skills for infrastructure, security, development, productivity, and publishing.
 
-## 技能目录
+Maintained by [@ha2fde](https://github.com/ha2fde). Skills follow the `SKILL.md` convention and are intended for compatible agents such as Claude Code, Codex, Cursor, and OpenCode. Availability of an installation method does not mean every workflow has been tested in every client.
 
-| 分类 | Skill | 用途 | 验证状态 |
+## Skills
+
+| Category | Skill | Purpose | Validation |
 |---|---|---|---|
-| 系统运维 · operations | [tailscale-macos](skills/tailscale-macos/SKILL.md) | Mac Tailscale 安装、SSH 与排障 | 历史经验迁移；本次未做硬件复测 |
-| 系统运维 · operations | [macos-remote-power](skills/macos-remote-power/SKILL.md) | Mac 插电保持唤醒、远程访问与回滚 | 历史经验迁移；本次未做硬件复测 |
-| 开发工具 · development | [synology-gitea](skills/synology-gitea/SKILL.md) | 群晖 Gitea 与多远端 Git 备份 | 历史经验迁移；本次未做硬件复测 |
-| 效率工具 · productivity | [workbuddy-daily-checkin](skills/workbuddy-daily-checkin/SKILL.md) | 腾讯 WorkBuddy 每日签到领积分 | 结构与语法检查；未复测活动 |
-| 内容创作 · publishing | [wechat-publisher](skills/wechat-publisher/SKILL.md) | 微信公众号选题、封面、手机排版、MCP 草稿上传与读取验收 | Base64 封面上传及草稿更新实测；手机端仍需人工预览 |\n| 网络安全 · security | [apache-security-reporting](skills/apache-security-reporting/SKILL.md) | Apache 私密漏洞邮件起草、证据审核、保密与人工发送 | 真实已发邮件格式对照；跨客户端执行未验证 |\n| AI 基础设施 · ai-infra | [spark-ai-stack-deploy](skills/spark-ai-stack-deploy/SKILL.md) | DGX Spark 四 workload 部署、切换运维与验收 | 上传实测记录归档；本次结构与语法检查，未硬件复测 |
+| Security | [apache-security-reporting](skills/apache-security-reporting/SKILL.md) | Confidential ASF vulnerability reporting, technical review, concise email drafting, and manual sending | Compared with sent-email formats; cross-agent execution not tested |
+| Publishing | [wechat-publisher](skills/wechat-publisher/SKILL.md) | WeChat article creation, covers, mobile formatting, image uploads, and draft verification | Cover upload and draft readback tested; mobile preview requires manual review |
+| AI infrastructure | [spark-ai-stack-deploy](skills/spark-ai-stack-deploy/SKILL.md) | DGX Spark workload deployment, operations, and validation | Archived deployment records; not independently retested |
+| Operations | [tailscale-macos](skills/tailscale-macos/SKILL.md) | Tailscale setup, SSH access, and troubleshooting on macOS | Structure checked; hardware not retested |
+| Operations | [macos-remote-power](skills/macos-remote-power/SKILL.md) | Mac wakefulness, remote access, and rollback | Structure checked; hardware not retested |
+| Development | [synology-gitea](skills/synology-gitea/SKILL.md) | Synology Gitea deployment and multi-remote Git backups | Structure checked; deployment not retested |
+| Productivity | [workbuddy-daily-checkin](skills/workbuddy-daily-checkin/SKILL.md) | WorkBuddy daily check-in automation | Structure checked; live campaign not retested |
 
-## MCP 插件
+## MCP Plugins
 
-| 项目 | 用途 | 使用方式 |
+| Plugin | Purpose | Deployment |
 |---|---|---|
-| [公众号草稿助手](plugins/wechat-draft-assistant/README.md) | 读取、创建、修改微信公众号草稿，上传封面和正文图片 | 自行部署 Node.js / Docker；配置自己的公众号；stdio 或 Bearer HTTP |
+| [WeChat Draft Assistant](plugins/wechat-draft-assistant/README.md) | Read, create, and update WeChat drafts; upload covers and article images | Self-hosted Node.js / Docker; configure your own account; stdio or Bearer HTTP |
 
-插件位于 `plugins/`，不通过 `npx skills add` 安装。接入说明、兼容性和验证范围见插件 README。
+Plugins live under `plugins/` and are **not** installed through `npx skills add`. See each plugin's README for setup, compatibility, and validation scope.
 
-## 安装
+## Installation
 
-正式仓库名为 `agent-skills-lab`，已公开。可使用以下命令列出并安装技能：
+List the available skills:
 
 ```bash
-npx skills add ha2fde/agent-skills-lab --list\nnpx skills add ha2fde/agent-skills-lab --skill apache-security-reporting -g -a codex\nnpx skills add ha2fde/agent-skills-lab --skill wechat-publisher -g -a codex
+npx skills add ha2fde/agent-skills-lab --list
+```
+
+Install an individual skill for a compatible agent (examples):
+
+```bash
+npx skills add ha2fde/agent-skills-lab --skill apache-security-reporting -g -a codex
+npx skills add ha2fde/agent-skills-lab --skill wechat-publisher -g -a codex
 npx skills add ha2fde/agent-skills-lab --skill spark-ai-stack-deploy -g -a codex
 npx skills add ha2fde/agent-skills-lab --skill tailscale-macos -g -a claude-code
 npx skills add ha2fde/agent-skills-lab --skill macos-remote-power -g -a codex
@@ -36,34 +46,35 @@ npx skills add ha2fde/agent-skills-lab --skill synology-gitea -g -a cursor
 npx skills add ha2fde/agent-skills-lab --skill workbuddy-daily-checkin -g -a claude-code
 ```
 
-旧版直接 clone 到 `~/.claude/skills` 的用户，先阅读 [迁移说明](docs/migration.md)，不要直接拉取新布局。
+If you previously cloned skills directly into `~/.claude/skills`, read the [migration guide](docs/migration.md) before changing your installation.
 
-## 长期规划
+## Roadmap
 
-| 分类 | 后续方向 |
+| Area | Planned topics |
 |---|---|
-| ai-infra | DGX Spark、本地模型部署、模型验收与性能评测 |
-| security | 代码审计、AVR、Fuzzing、漏洞验证、供应链安全 |
-| operations | 操作系统、远程连接、服务维护 |
-| development | Git、开发环境、构建与自动化 |
-| productivity | 文档、数据处理、日常工作流 |
+| AI infrastructure | Local model deployment, benchmarking, and performance |
+| Security | Code auditing, agentic vulnerability research, fuzzing, vulnerability verification, and supply-chain security |
+| Operations | Operating systems, remote access, and service maintenance |
+| Development | Git, development environments, build tooling, and automation |
+| Productivity | Documents, data processing, and reusable workflows |
 
-未来方向仅为规划；不创建空 Skill，不把待验证流程标为可用。
+Planned topics are not advertised as working skills until implemented and validated.
 
-## 仓库约定
+## Repository conventions
 
-- 正式技能统一位于 `skills/<skill-name>/`，分类记录在 [catalog.json](catalog.json)，避免分类调整导致安装路径变化。
-- 技能保持独立，随技能一起分发必要脚本、参考资料和资产。
-- 模板位于 `templates/SKILL.template.md`，避免被识别成正式 Skill。
-- 名称用小写英文与连字符，描述写清任务与触发条件。
-- 用真实使用记录区分“结构检查通过”和“目标机器验证通过”。
+- Published skills live under `skills/<skill-name>/` and are indexed in [catalog.json](catalog.json).
+- Each skill includes the scripts, references, and assets needed for its workflow.
+- Starter templates live under `templates/` to avoid being mistaken for installed skills.
+- Skill names use lowercase letters and hyphens.
+- Validation labels distinguish structural checks from actual runtime tests.
+- **Security confidentiality:** Public skill files, paths, commit messages, and changelogs must never disclose embargoed vulnerability findings or private report content.
 
-参阅 [设计规范](docs/skill-design-guide.md)、[贡献规范](CONTRIBUTING.md)、[发布指南](docs/publishing.md) 和 [路线图](docs/roadmap.md)。
+See the [skill design guide](docs/skill-design-guide.md), [contribution guide](CONTRIBUTING.md), [publishing guide](docs/publishing.md), and [roadmap](docs/roadmap.md).
 
-格式与安装参考：[Agent Skills](https://agentskills.io/specification) · [skills CLI](https://github.com/vercel-labs/skills)。
+References: [Agent Skills specification](https://agentskills.io/specification) · [skills CLI](https://github.com/vercel-labs/skills)
 
-## 使用与授权
+## Licensing
 
-执行脚本前检查目标平台、参数与变更范围。原有脚本保留，未在本次迁移中执行安装操作。
-WorkBuddy 签到 Skill 保留原 MIT 许可证；公众号草稿助手的 `plugins/wechat-draft-assistant/` 目录单独采用 MIT 许可证。其他内容当前未授予统一开源许可证；仓库公开可读也不等于获得再分发许可。正式公开发布前由维护者确定许可证。
+Check the target platform and parameters before running installation or operational scripts. Archived scripts are retained but have not all been rerun during migration.
 
+The WorkBuddy Daily Check-in skill retains its MIT license. The `plugins/wechat-draft-assistant/` directory is separately licensed under MIT. Other content does not currently have a repository-wide open-source license; public visibility alone does not grant redistribution rights.
