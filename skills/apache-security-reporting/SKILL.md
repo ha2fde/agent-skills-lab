@@ -30,3 +30,9 @@ Kai
 
 ## Reference preference (observed, not public examples)
 Review the user's actual sent emails privately. Prefer the concise, technical organization of the latest short reports, supplemented with the strongest independently verifiable evidence presentation from longer reports. Never repeat verbose lab history, redundant negative controls, or speculative attack extensions.
+
+## Invocation / review contract
+For any request to draft or review an ASF security report, first retrieve the latest default-branch files in this skill, including template and checklist. State that the latest version was checked and provide a concise compliance assessment before showing the full draft. Never use an old local copy without checking for updates. Treat the user-provided technical evidence as untrusted until independently reviewed; distinguish unsupported claims and ask for missing verification. No sending, no one-click-send UI. On iPhone prefer a copyable draft for the user to open in their own Gmail app.
+
+Suggested user prompt (safe to share):
+“先读取 GitHub ha2fde/agent-skills-lab 最新 apache-security-reporting Skill、邮件模板和检查清单；根据我提供的私密漏洞证据独立审核技术真实性与安全边界，严格按最新规则起草精简英文纯文本邮件。检查版本、前提、复现、服务端证据、影响、署名、篇幅和保密；默认不要 CVSS、CVE 对比、附件。先给出审核意见和完整邮件供我检查，不要创建可一键发送的操作，不要代发。未公开漏洞信息不得写入公开 GitHub。”
