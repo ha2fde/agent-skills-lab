@@ -1,9 +1,15 @@
 ---
 name: apache-security-reporting
-description: Draft, audit, and revise confidential Apache Software Foundation security reports using verified evidence and a stable, concise email format.
+description: Review, draft, and follow up confidential Apache Software Foundation vulnerability reports; check public fixes and duplicates, interpret triage replies, and assess CVE credit using verified evidence.
 ---
 
 # Apache security reporting
+
+## Task routing
+- For report preparation, read `references/review-checklist.md` and use `templates/report-email.txt`; perform the pre-submission checks in `references/triage-and-follow-up.md` before drafting.
+- For team replies, duplicate assessments, public-fix checks, CVE status, or credit questions, read `references/triage-and-follow-up.md` and `references/public-policy-sources.md`.
+- Retrieve the latest default-branch version of the files needed for the current task. Recheck official policy sources for time-sensitive conclusions.
+- Keep this entry point and its references generic. Load actual cases only from user-authorized private sources, and keep them out of every public write.
 
 ## Mandatory workflow
 1. Read this SKILL.md and `references/review-checklist.md` before drafting or revising any ASF vulnerability report. Use `templates/report-email.txt` as the sole default structure. Never infer the latest standard from older AI-generated drafts.
@@ -22,6 +28,10 @@ Kai
 8. After user confirms a *generalizable* rule change, update this skill, template, checklist and changelog in a generic way. Record what changed, not which undisclosed finding prompted it. Never overwrite an approved standard merely because an AI draft differs.
 
 ## Embargo / public repository boundary (highest priority)
+- Derive reusable procedures from experience, then substantiate public policy claims with public official sources. Keep private observations without public support in private notes; never present them as ASF-wide rules.
+- Renaming a project or removing an account is insufficient anonymization. Exclude combinations of dates, versions, issue types, identifiers, patch clues, and response wording that could identify an undisclosed case.
+- Do not copy the user's case notebook into this skill or link to private records from the public package. Use invented placeholders for examples. Public identifiers are permitted only when independently verified as officially disclosed; private mentions are not proof of public status.
+- Before publishing, inspect the complete outgoing content and metadata, including test fixtures and generated examples. If confidential information is found, remove it before any public write; resolve genuine disclosure uncertainty with the user.
 - All unannounced vulnerabilities are PRIVATE / EMBARGOED, including their project+vulnerability associations.
 - This public Skill contains **only generic instructions and placeholders**. Never commit real report subjects or bodies, project-specific vulnerability types, exploit details, test identities, evidence, private emails, security team responses, or private Drive links.
 - Before *every* public write, inspect filenames, paths, body, commit message, PR/branch names, README, changelog and diffs for confidential details. If uncertain, stop and request approval. Deleting later does not reliably remove Git history.
@@ -36,3 +46,6 @@ For any request to draft or review an ASF security report, first retrieve the la
 
 Suggested user prompt (safe to share):
 “先读取 GitHub ha2fde/agent-skills-lab 最新 apache-security-reporting Skill、邮件模板和检查清单；根据我提供的私密漏洞证据独立审核技术真实性与安全边界，严格按最新规则起草精简英文纯文本邮件。检查版本、前提、复现、服务端证据、影响、署名、篇幅和保密；默认不要 CVSS、CVE 对比、附件。先给出审核意见和完整邮件供我检查，不要创建可一键发送的操作，不要代发。未公开漏洞信息不得写入公开 GitHub。”
+
+## Follow-up output contract
+Report the decision-maker, process stage, exact stated decision and reason, evidence checked, limits of verification, and next justified action. Keep receipt, referral, technical validity, duplicate status, public-fix status, CVE assignment, credit, and publication separate. Never infer an unobserved PMC review from an ASF triage reply. A valid report can be duplicate; a duplicate can still be credited; neither credit nor a new identifier is guaranteed. Keep all drafted follow-up correspondence subject to the same manual-review and no-send rule.
