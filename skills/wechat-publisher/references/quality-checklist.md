@@ -1,3 +1,5 @@
+> Canonical default (2026-11-06): 18px body, 23px headings, 1.85 line height, navy/champagne-gold. Never silently downgrade to 16px/20px cyan.
+
 # WeChat Article QA Checklist
 
 ## Editorial
