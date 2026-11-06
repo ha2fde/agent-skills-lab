@@ -57,6 +57,13 @@
       "path": "skills/wechat-publisher",
       "version": "1.0.0",
       "validation": "wechat-cover-upload-and-draft-readback-verified; mobile preview user-validated"
+    },
+    {
+      "name": "apache-security-reporting",
+      "category": "security",
+      "path": "skills/apache-security-reporting",
+      "version": "1.0.1",
+      "validation": "sent-email-format-reviewed; cross-agent-installation-not-tested"
     }
   ]
 }
