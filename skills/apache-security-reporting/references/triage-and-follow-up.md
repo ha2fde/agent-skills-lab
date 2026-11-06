@@ -9,6 +9,16 @@
 6. If a public patch appears relevant, explain the overlap privately. Do not claim a bypass or an independent vulnerability without evidence that the reported path remains outside its coverage.
 7. Keep historical comparisons in the private assessment by default; preserve the concise first-contact email format.
 
+## Roles and authority
+| Role | Practical responsibility | Interpretation boundary |
+| --- | --- | --- |
+| ASF Security Team | Foundation-wide intake, screening, coordination, project referral and CVE support | A receipt or referral is not project acceptance. Screening can include technical judgment and can end without referral. |
+| Project PMC (Project Management Committee) | Governance and accountability for a specific project, including organizing investigation, remediation and releases | There is no single foundation-wide PMC deciding every project's reports. Do not infer a collective PMC decision from an individual's acknowledgment. |
+| Project security team, where established | Day-to-day confidential vulnerability handling under the project's published arrangements | Membership and delegation vary; do not assume every project has the same organization. |
+| Release manager or designated coordinator | Fix integration, release coordination and advisory scheduling | Release timing, technical validity and credit decisions are separate states. |
+
+Identify the actual sender and their capacity from the current message, signature, recipients and project policy. Distinguish newly written text from quoted/forwarded messages. If needed verify current official membership, but membership alone does not establish authority for a particular decision or participation in a private case. Do not hard-code people's names, addresses, affiliations or response-speed rankings in this public skill. Keep all actual case correspondence and participant associations private.
+
 ## Interpret a reply
 Extract:
 - Decision-maker: ASF Security, project security team/PMC, individual reviewer, or automated assistant.

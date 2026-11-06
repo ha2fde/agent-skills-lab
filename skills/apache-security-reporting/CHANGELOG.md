@@ -21,3 +21,7 @@ This log intentionally contains no information about unpublished findings.
 - Added official policy references and a reusable follow-up output contract.
 - Strengthened privacy checks for searches, examples, metadata and reconstructable case details.
 - Preserved the concise first-contact template and user-controlled sending requirement.
+
+## 1.1.1 — 2026-11-07
+- Clarified foundation-wide and project-specific roles and their decision boundaries.
+- Added sender-versus-quoted-text checks without including personal identities or private case associations.
