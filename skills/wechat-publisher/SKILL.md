@@ -7,9 +7,13 @@ description: Plan, write, visually format, upload and verify WeChat Official Acc
 
 Use when the user requests a 微信公众号 article, rewrite, cover, image, draft, or publishing workflow. The user controls final publication; default to **draft only**.
 
+## Non-negotiable acceptance gate
+
+For any new article, follow [Publishing contract](references/publishing-contract.md) as the **source of truth**. Do not mark work complete without actual WeChat cover media_id, draft creation/update, and successful readback. The approved 18px/23px mobile layout and engaging, evidence-grounded narrative are mandatory. If a cover upload fails, solve that specific failure before claiming the article is ready. No silent fallback to an old cover or text-only draft.
+
 ## Mandatory new-conversation bootstrap
 
-When a user asks for a new WeChat article or draft, **before drafting**, retrieve the latest version of this GitHub SKILL.md and its reference files, especially the mandatory image-upload runbook (or use a verified installed copy). Treat these as the user's canonical preferences. Never substitute a stale chat summary or a remembered older version. Confirm the currently connected WeChat MCP input schema before any image upload. If GitHub access is unavailable, state that the canonical skill could not be loaded and use the known defaults below; do not claim you loaded it. A GitHub repository cannot force automatic loading in arbitrary ChatGPT conversations; a new chat must explicitly request the bootstrap or have a compatible skill integration.
+When a user asks for a new WeChat article or draft, **before drafting**, retrieve the latest version of this GitHub SKILL.md and its reference files, especially the mandatory publishing contract and image-upload runbook (or use a verified installed copy). Treat these as the user's canonical preferences. Never substitute a stale chat summary or a remembered older version. Confirm the currently connected WeChat MCP input schema before any image upload. If GitHub access is unavailable, state that the canonical skill could not be loaded and use the known defaults below; do not claim you loaded it. A GitHub repository cannot force automatic loading in arbitrary ChatGPT conversations; a new chat must explicitly request the bootstrap or have a compatible skill integration.
 
 **Known-good article baseline:** The 2026-11-06 GPT-6 Cyber draft was successfully updated with 18px body, 23px headings, navy/champagne-gold styling, 1.85 line-height, generous paragraph spacing, bold key statements, prominent navy hero and concluding highlight, mobile-safe references, and readback verification. Use this as a styling reference, not as content to copy. Cover upload succeeded using an actual 900×383 JPEG file (~71KB) encoded as Base64, then a new WeChat media_id was saved into the draft and read back.
 
@@ -34,6 +38,7 @@ When a user asks for a new WeChat article or draft, **before drafting**, retriev
 - Preserve a known-good draft until the replacement is verified.
 
 ## References
+- [Mandatory publishing contract](references/publishing-contract.md)
 - [Mandatory image-upload byte bridge](references/image-upload-runbook.md)
 - [Visual and QA checklist](references/quality-checklist.md)
 - [Incident log](references/incidents.md)
