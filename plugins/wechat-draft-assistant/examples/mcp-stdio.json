@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "wechat-draft": {
+      "command": "node",
+      "args": [
+        "--env-file=/ABS/agent-skills-lab/plugins/wechat-draft-assistant/.env",
+        "/ABS/agent-skills-lab/plugins/wechat-draft-assistant/src/server.mjs"
+      ],
+      "env": {
+        "WECHAT_DATA_DIR": "/ABS/wechat-draft-data"
+      }
+    }
+  }
+}

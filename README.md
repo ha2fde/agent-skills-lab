@@ -15,6 +15,14 @@ A growing collection of practical Agent Skills for infrastructure, security, dev
 | 效率工具 · productivity | [workbuddy-daily-checkin](skills/workbuddy-daily-checkin/SKILL.md) | 腾讯 WorkBuddy 每日签到领积分 | 结构与语法检查；未复测活动 |
 | AI 基础设施 · ai-infra | [spark-ai-stack-deploy](skills/spark-ai-stack-deploy/SKILL.md) | DGX Spark 四 workload 部署、切换运维与验收 | 上传实测记录归档；本次结构与语法检查，未硬件复测 |
 
+## MCP 插件
+
+| 项目 | 用途 | 使用方式 |
+|---|---|---|
+| [公众号草稿助手](plugins/wechat-draft-assistant/README.md) | 读取、创建、修改微信公众号草稿，上传封面和正文图片 | 自行部署 Node.js / Docker；配置自己的公众号；stdio 或 Bearer HTTP |
+
+插件位于 `plugins/`，不通过 `npx skills add` 安装。接入说明、兼容性和验证范围见插件 README。
+
 ## 安装
 
 正式仓库名为 `agent-skills-lab`，已公开。可使用以下命令列出并安装技能：
@@ -57,4 +65,5 @@ npx skills add ha2fde/agent-skills-lab --skill workbuddy-daily-checkin -g -a cla
 ## 使用与授权
 
 执行脚本前检查目标平台、参数与变更范围。原有脚本保留，未在本次迁移中执行安装操作。
-WorkBuddy 签到 Skill 保留原 MIT 许可证；其他内容当前未授予统一开源许可证；仓库公开可读也不等于获得再分发许可。正式公开发布前由维护者确定许可证。
+WorkBuddy 签到 Skill 保留原 MIT 许可证；公众号草稿助手的 `plugins/wechat-draft-assistant/` 目录单独采用 MIT 许可证。其他内容当前未授予统一开源许可证；仓库公开可读也不等于获得再分发许可。正式公开发布前由维护者确定许可证。
+

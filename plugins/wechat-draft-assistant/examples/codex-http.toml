@@ -1,0 +1,5 @@
+# Choose this OR the stdio example, not both with the same server name.
+# Set WECHAT_DRAFT_TOKEN in the MCP client's own environment to the server token.
+[mcp_servers.wechat_draft]
+url = "http://127.0.0.1:8787/mcp"
+bearer_token_env_var = "WECHAT_DRAFT_TOKEN"

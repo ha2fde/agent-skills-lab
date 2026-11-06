@@ -1,0 +1,21 @@
+services:
+  wechat-draft:
+    build: .
+    init: true
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8787"
+      WECHAT_DATA_DIR: /app/data
+    ports:
+      - "127.0.0.1:8787:8787"
+    volumes:
+      - wechat-data:/app/data
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+volumes:
+  wechat-data:

@@ -1,0 +1,7 @@
+# Merge into your local Codex config.toml; replace all /ABS paths.
+[mcp_servers.wechat_draft]
+command = "node"
+args = ["--env-file=/ABS/agent-skills-lab/plugins/wechat-draft-assistant/.env", "/ABS/agent-skills-lab/plugins/wechat-draft-assistant/src/server.mjs"]
+
+[mcp_servers.wechat_draft.env]
+WECHAT_DATA_DIR = "/ABS/wechat-draft-data"
