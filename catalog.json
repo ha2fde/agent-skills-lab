@@ -6,7 +6,8 @@
     "security",
     "operations",
     "development",
-    "productivity"
+    "productivity",
+    "publishing"
   ],
   "skills": [
     {
@@ -49,6 +50,13 @@
       "sourceArchive": "spark-ai-stack-deploy-20261013.zip",
       "sourceValidation": "user-reported target-machine deployment; not independently retested",
       "archivedAt": "2026-10-13"
+    },
+    {
+      "name": "wechat-publisher",
+      "category": "publishing",
+      "path": "skills/wechat-publisher",
+      "version": "1.0.0",
+      "validation": "wechat-cover-upload-and-draft-readback-verified; mobile preview user-validated"
     }
   ]
 }
