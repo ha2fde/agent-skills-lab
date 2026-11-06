@@ -37,6 +37,10 @@ When a user asks for a new WeChat article or draft, **before drafting**, retriev
 - Formatting lost: inspect returned HTML; restore inline `strong` emphasis and headings without altering content. Check mobile wrapping and reference indices.
 - Preserve a known-good draft until the replacement is verified.
 
+## Local deterministic preparation
+
+Use [scripts/prepare_cover.py](scripts/prepare_cover.py) for repeatable cover conversion, byte-size validation, SHA-256 and temporary Base64 bridge generation. Requires Pillow. This is a **local helper**, not a newly deployed MCP tool: the hosted WeChat connector still requires the documented Files Library bridge and upload call. Do not claim one-click upload or automatic cross-chat loading until implemented and tested.
+
 ## References
 - [Mandatory publishing contract](references/publishing-contract.md)
 - [Mandatory image-upload byte bridge](references/image-upload-runbook.md)
