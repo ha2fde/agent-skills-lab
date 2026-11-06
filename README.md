@@ -13,7 +13,7 @@ A growing collection of practical Agent Skills for infrastructure, security, dev
 | 系统运维 · operations | [macos-remote-power](skills/macos-remote-power/SKILL.md) | Mac 插电保持唤醒、远程访问与回滚 | 历史经验迁移；本次未做硬件复测 |
 | 开发工具 · development | [synology-gitea](skills/synology-gitea/SKILL.md) | 群晖 Gitea 与多远端 Git 备份 | 历史经验迁移；本次未做硬件复测 |
 | 效率工具 · productivity | [workbuddy-daily-checkin](skills/workbuddy-daily-checkin/SKILL.md) | 腾讯 WorkBuddy 每日签到领积分 | 结构与语法检查；未复测活动 |
-| AI 基础设施 · ai-infra | [spark-ai-stack-deploy](skills/spark-ai-stack-deploy/SKILL.md) | DGX Spark 四 workload 部署、切换运维与验收 | 上传实测记录归档；本次结构与语法检查，未硬件复测 |
+| 内容创作 · publishing | [wechat-publisher](skills/wechat-publisher/SKILL.md) | 微信公众号选题、封面、手机排版、MCP 草稿上传与读取验收 | Base64 封面上传及草稿更新实测；手机端仍需人工预览 |\n| AI 基础设施 · ai-infra | [spark-ai-stack-deploy](skills/spark-ai-stack-deploy/SKILL.md) | DGX Spark 四 workload 部署、切换运维与验收 | 上传实测记录归档；本次结构与语法检查，未硬件复测 |
 
 ## MCP 插件
 
@@ -28,7 +28,7 @@ A growing collection of practical Agent Skills for infrastructure, security, dev
 正式仓库名为 `agent-skills-lab`，已公开。可使用以下命令列出并安装技能：
 
 ```bash
-npx skills add ha2fde/agent-skills-lab --list
+npx skills add ha2fde/agent-skills-lab --list\nnpx skills add ha2fde/agent-skills-lab --skill wechat-publisher -g -a codex
 npx skills add ha2fde/agent-skills-lab --skill spark-ai-stack-deploy -g -a codex
 npx skills add ha2fde/agent-skills-lab --skill tailscale-macos -g -a claude-code
 npx skills add ha2fde/agent-skills-lab --skill macos-remote-power -g -a codex
