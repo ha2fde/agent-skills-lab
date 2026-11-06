@@ -1,0 +1,32 @@
+To: security@apache.org
+Subject: [SECURITY] [Apache <Project>] <concise technical impact>
+
+Hello Apache Security Team,
+
+I would like to privately report <one-sentence verified vulnerability and required attacker prerequisites>.
+
+Affected Version
+<Only versions actually tested; distinguish source review from runtime validation.>
+
+Root Cause
+<Exact file/function and the missing security check or trust-boundary violation; one short code excerpt only if necessary.>
+
+Steps to Reproduce
+1. <Minimal test setup and prerequisites.>
+2. <Reproducible trigger.>
+3. <Observed response and independently verified impact.>
+
+<Optional: one or two decisive negative controls, only when needed to eliminate an obvious alternative explanation.>
+
+Security Impact
+<Verified unauthorized capability and its scope; no unsupported extrapolation.>
+
+Suggested Remediation
+<One or two actionable sentences; avoid prescribing an unverified patch.>
+
+I can provide additional reproduction details privately upon request.
+
+If this results in an advisory, please credit me as Kai (GitHub ha2fde).
+
+Regards,
+Kai
