@@ -9,3 +9,8 @@
 - Added strict pre-commit embargo controls for all public repository metadata and content.
 
 This log intentionally contains no information about unpublished findings.
+
+## 1.0.1 — 2026-11-06
+- Added explicit latest-version retrieval and pre-delivery compliance assessment.
+- Documented a reusable user invocation prompt and safe mobile manual-review flow.
+- Registered the skill in the public catalog and README.
