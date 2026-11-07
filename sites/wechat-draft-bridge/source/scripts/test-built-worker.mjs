@@ -41,7 +41,7 @@ try {
  const themedDraft=await rpc('wechat_prepare_and_save_draft',themed);assert.equal(themedDraft.readback_verified,true,JSON.stringify(themedDraft));assert.equal(themedDraft.verification[0].checks.visual_style,true);
  assert.match(upstream.get(themedDraft.media_id)[0].content,/background-color:#ffffff/);assert.match(upstream.get(themedDraft.media_id)[0].content,/color:#000000/);
  console.log('PASS built Worker per-article theme and visual-style readback');
- const styled={...args,request_id:'built-worker-inline-style-001',title:'Distinct per-article inline style',content:'<section style="background-color:#17283f;color:#f8ead4;font-family:Georgia,serif"><h2 style="color:#ffd27a">标题</h2><p style="font-size:10px;line-height:1.1;color:#f8ead4">正文</p></section>'};
+ const styled={...args,request_id:'built-worker-inline-style-001',title:'Distinct per-article inline style',content:'<section style="background-color:#17283f;color:#f8ead4;font-family:Georgia,serif"><h2 style="color:#ffd27a">标题</h2><p style="font-size:10px;line-height:1.1;color:#f8ead4">正文</p></section>{{image:b}}'};
  const styledDraft=await rpc('wechat_prepare_and_save_draft',styled);assert.equal(styledDraft.readback_verified,true,JSON.stringify(styledDraft));
  const styledHtml=upstream.get(styledDraft.media_id)[0].content;assert.match(styledHtml,/background-color:#17283f/);assert.match(styledHtml,/color:#f8ead4/);assert.ok(!styledHtml.includes('font-size:10px'));
  console.log('PASS built Worker preserves distinct inline palette and repairs cramped type without theme');

@@ -1,5 +1,5 @@
 {
-  "site_source_commit": "d09939e0807c703373730dda539563f32224e74e",
+  "site_source_commit": "ff582fc00011ed729e041407990eb9e17e127977",
   "files": [
     {
       "path": ".gitignore",
@@ -101,9 +101,9 @@
       "path": "app/mcp/route.ts",
       "mode": "100644",
       "type": "blob",
-      "sha": "b6b6fededcc4cbbd2c7ecb4d04a0be33b18aecb8",
+      "sha": "259d75b9f78fe96ca8b65390914dbaf6d3cd72ef",
       "size": 4399,
-      "sha256": "819f05835a48c2952055c85a7e933c5bc98cd326386d0e73ba8d9e95a30364ce"
+      "sha256": "e78345ac2c21124c1aa81bd977c37de469e0ad139e2ddbceab9a59466e89ed4b"
     },
     {
       "path": "app/page.tsx",
@@ -773,9 +773,9 @@
       "path": "lib/mcp-tools.ts",
       "mode": "100644",
       "type": "blob",
-      "sha": "3be1852bed8db93129a168e610ed443d37d27c0f",
-      "size": 8273,
-      "sha256": "cb3fbff67a94909e393e6e1c8d2d9cda8c96c30b7912ce7a313ed11404f27d71"
+      "sha": "1bee5e24ac82241093412fb046d2126fc1ebbbc2",
+      "size": 11540,
+      "sha256": "34fe5b5e3451b6d690afb830608497560f58c2d77fe0826e8e01d4c465f525c3"
     },
     {
       "path": "lib/relay-source.ts",
@@ -805,9 +805,9 @@
       "path": "lib/wechat-format.ts",
       "mode": "100644",
       "type": "blob",
-      "sha": "a52eebc192d78f39d9daa14bda799f1f0b9aa3e8",
-      "size": 8852,
-      "sha256": "1813d5d169e5fa01a10e14896f5f424e31b16e9d8b57c2b85a86e00347db40a4"
+      "sha": "7215052310105c719a8d200c979cdb161a653473",
+      "size": 16515,
+      "sha256": "1cfde957276b37ddaa7015fa212dcc9993d50a275c10ba9e4017a907d6877bf1"
     },
     {
       "path": "lib/wechat-image.ts",
@@ -829,9 +829,9 @@
       "path": "lib/wechat.ts",
       "mode": "100644",
       "type": "blob",
-      "sha": "b1f2cfef59087bfe06aa651762b2468a270cc80f",
-      "size": 26399,
-      "sha256": "0db8eb858ff675ed44a98342b5fb51dd4a4bef48e10ab8b275ae8d1516b0dc82"
+      "sha": "6e6e6950cae8e7f0ec7a096b194cc2a4d085e14b",
+      "size": 36965,
+      "sha256": "341bcd97050351638443c3fe5ad6a077b027fc1ca4205fb34ffb76e1ff4530fc"
     },
     {
       "path": "next.config.ts",
@@ -1037,17 +1037,17 @@
       "path": "scripts/test-built-worker.mjs",
       "mode": "100644",
       "type": "blob",
-      "sha": "26570f1d96403e010a6a33154c42aa2da54dc867",
-      "size": 4352,
-      "sha256": "0f14b821c0d444167d62fa3d99eb4ae781aaf214dfe67771209bcce069546c81"
+      "sha": "28affd2326a16432aa1ac149c7513542f1420720",
+      "size": 7016,
+      "sha256": "031474467450512d49f3c203dc2b031d79db4cee78db5347dbb74c6216682ee6"
     },
     {
       "path": "scripts/test-wechat.mjs",
       "mode": "100644",
       "type": "blob",
-      "sha": "c244d395c1b06ba7edbd8006cbb19b49b8adf4f7",
-      "size": 24171,
-      "sha256": "e82f3dca967c619eabd862356615fedcc82354130be44c0ee478bcddcd45284f"
+      "sha": "ff690212b31694b43f17806ae52aec77f4c06c85",
+      "size": 37412,
+      "sha256": "1abfebf1b94fc53ffef4b4eb17d1ee9a58331bc9e7148c1c78645dda239dcea4"
     },
     {
       "path": "scripts/test-worker-request.mjs",
