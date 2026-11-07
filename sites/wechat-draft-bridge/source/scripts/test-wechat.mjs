@@ -30,10 +30,11 @@ const db = {
       then(fulfilled, rejected) { try { return Promise.resolve(insert()).then(fulfilled, rejected); } catch(e) { return Promise.reject(e).then(fulfilled, rejected); } },
     };
   } }; },
-  update(t) { return { set(values) { return { async where(fn) { for (const row of records.get(t)) if (fn(row)) Object.assign(row, values); } }; } }; },
+  update(t) { return { set(values) { const u={filter:()=>true,where(fn) {u.filter=fn;return u;},async returning() {const rows=records.get(t).filter(u.filter);for(const row of rows) Object.assign(row,values);return rows.map(r=>({id:r.id}));},then(fulfilled,rejected) {try {for(const row of records.get(t).filter(u.filter)) Object.assign(row,values);return Promise.resolve().then(fulfilled,rejected);}catch(e){return Promise.reject(e).then(fulfilled,rejected);}}};return u; } }; },
 };
 const originalFetch = globalThis.fetch;
 const upstream = new Map();
+let draftSequence = 0;
 const calls = [];
 let failure = "";
 globalThis.fetch = async (url, options) => {
@@ -54,14 +55,21 @@ globalThis.fetch = async (url, options) => {
   if (path === "/cgi-bin/draft/count") return Response.json({ total_count: upstream.size });
   if (path === "/cgi-bin/draft/add") {
     if (failure === "wechat-reject") return Response.json({ errcode: 48001, errmsg: "api unauthorized" });
-    const mediaId = "draft-" + upstream.size;
+    const mediaId = "draft-" + draftSequence++;
     upstream.set(mediaId, body.articles);
     if (["lost-create-response","lost-create-no-lookup"].includes(failure)) throw new Error("simulated network loss");
     return Response.json({ media_id: mediaId });
   }
   if (path === "/cgi-bin/draft/get") {
     if (failure === "readback") throw new Error("simulated failed read");
+    if (!upstream.has(body.media_id)) return Response.json({errcode:40007,errmsg:"invalid media id"});
     return Response.json({ news_item: failure === "mismatch" ? [{...upstream.get(body.media_id)[0],title:"wrong"}] : upstream.get(body.media_id) || [] });
+  }
+  if (path === "/cgi-bin/draft/delete") {
+    if(failure === "delete-reject") return Response.json({errcode:48001,errmsg:"api unauthorized"});
+    if(failure !== "delete-timeout-present" && failure !== "delete-no-op") upstream.delete(body.media_id);
+    if(failure === "delete-timeout" || failure === "delete-timeout-present") throw new Error("simulated delete timeout");
+    return Response.json({errcode:0,errmsg:"ok"});
   }
   if (path === "/cgi-bin/draft/update") { upstream.get(body.media_id)[body.index] = body.articles; return Response.json({ errcode: 0 }); }
   if (path === "/cgi-bin/media/uploadimg") return Response.json({ url: "https://mmbiz.qpic.cn/mock/body.png" });
@@ -200,7 +208,7 @@ try {
     const next = await (await rpc("after-error", "tools/call", { name: "wechat_list_images", arguments: {} })).json();
     assert.equal(next.id, "after-error"); assert.equal(next.result.isError, false);
     const status = await (await rpc(1, "initialize", { protocolVersion: "2026-07-28" })).json();
-    assert.equal(status.result.serverInfo.version, "1.1.1");
+    assert.equal(status.result.serverInfo.version, "1.2.0");
   });
   await test("oversized streamed MCP requests return a bounded JSON-RPC error", async () => {
     const response = await route.namespace.POST(new Request("https://mock.test/mcp", { method: "POST", body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { data: "A".repeat(512 * 1024) } }) }));
@@ -209,10 +217,12 @@ try {
     const invalid = await route.namespace.POST(new Request("https://mock.test/mcp", { method: "POST", body: '{"id":{},"jsonrpc":"2.0","method":"ping"}' }));
     assert.equal((await invalid.json()).error.code, -32600);
   });
-  await test("MCP exposes nine focused tools with no public publish/delete endpoint", async () => {
+  await test("MCP retains nine tools and exposes exactly one guarded destructive tool", async () => {
     const tools = root.namespace.tools;
-    assert.equal(tools.length, 9); assert.equal(new Set(tools.map(t => t.name)).size, 9);
-    assert.ok(!tools.some(t => /publish|delete|send/.test(t.name)));
+    assert.equal(tools.length, 10); assert.equal(new Set(tools.map(t => t.name)).size, 10);
+    assert.deepEqual(tools.filter(t=>/delete/.test(t.name)).map(t=>t.name),["wechat_delete_test_draft"]);
+    assert.ok(!tools.some(t => /publish|send/.test(t.name)));
+    assert.deepEqual(tools.at(-1).inputSchema.required,["media_id","request_id"]);
     for (const t of tools) assert.equal(t.inputSchema.type, "object");
   });
 
@@ -285,6 +295,67 @@ try {
     const stripped=rewritten.replace(/<a[^>]*>(.*?)<\/a>/g,'$1');
     const check=fmt.verifyArticle(expected,{...expected,content:stripped});assert.equal(check.verified,false);assert.equal(check.checks.links,false);assert.equal(check.checks.images,true);
     assert.match(fmt.normalizeHtml(rewritten),/src="https:\/\/mmbiz/);
+  });
+  const newTest=async(label)=>core.prepareAndSaveDraft("alice",{...prepareArgs,request_id:"test-create-"+label,title:"【测试草稿·勿发布】"+label,digest:"隔离回归测试",test_draft:true});
+  const deleteCount=()=>calls.filter(p=>p==="/cgi-bin/draft/delete").length;
+  await test("only explicitly registered test creation can be deleted with readback",async()=>{
+    const created=await newTest("legal-001");assert.equal(created.readback_verified,true);
+    const result=await core.deleteTestDraft("alice",{media_id:created.media_id,request_id:"delete-legal-001"});
+    assert.equal(result.outcome,"confirmed_deleted");assert.equal(result.readback_verified,true);assert.equal(upstream.has(created.media_id),false);
+    const before=deleteCount();assert.equal((await core.deleteTestDraft("alice",{media_id:created.media_id,request_id:"delete-legal-001"})).idempotent_replay,true);assert.equal(deleteCount(),before);
+    assert.equal((await core.deleteTestDraft("alice",{media_id:created.media_id,request_id:"delete-legal-002"})).outcome,"already_deleted");assert.equal(deleteCount(),before);
+  });
+  await test("formal article and test-word title without provenance cannot be deleted",async()=>{
+    const formal=await core.createDraft("alice",{request_id:"ordinary-draft-001",articles:[{...article,title:"正式文章"}]});
+    const titled=await core.createDraft("alice",{request_id:"test-word-draft-001",articles:[{...article,title:"测试文章"}]});
+    const before=deleteCount();for(const media_id of [formal.media_id,titled.media_id]) await assert.rejects(()=>core.deleteTestDraft("alice",{media_id,request_id:"delete-no-source-"+media_id}),/可信测试草稿创建记录/);
+    assert.equal(deleteCount(),before);
+  });
+  await test("mismatched target and reused request ID cannot delete another draft",async()=>{
+    const a=await newTest("target-a-001"),b=await newTest("target-b-001"),before=deleteCount();
+    const args={media_id:a.media_id,request_id:"delete-target-a-001"};
+    const result=await core.deleteTestDraft("alice",args);assert.equal(result.deleted,true);
+    await assert.rejects(()=>core.deleteTestDraft("alice",{...args,media_id:b.media_id}),/跨目标/);
+    assert.equal(upstream.has(b.media_id),true);assert.equal(deleteCount(),before+1);
+  });
+  await test("human edits to title, digest or body prevent automatic delete",async()=>{
+    const a=await newTest("changed-001");upstream.get(a.media_id)[0].content+="<p>human edited</p>";
+    const before=deleteCount();await assert.rejects(()=>core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-changed-001"}),/已变化/);assert.equal(deleteCount(),before);
+  });
+  await test("explicit WeChat permission error cannot be reported as deletion",async()=>{
+    const a=await newTest("reject-001");failure="delete-reject";
+    await assert.rejects(()=>core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-reject-001"}),/48001/);
+    failure="";assert.equal(upstream.has(a.media_id),true);
+    const before=deleteCount();assert.equal((await core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-reject-001"})).outcome,"previous_failure");assert.equal(deleteCount(),before);
+  });
+  await test("delete timeout reconciles target absence without duplicate request",async()=>{
+    const a=await newTest("timeout-001");failure="delete-timeout";
+    const result=await core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-timeout-001"});failure="";
+    assert.equal(result.outcome,"confirmed_absent_after_unknown");assert.equal(result.deleted,true);
+    const before=deleteCount();assert.equal((await core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-timeout-001"})).idempotent_replay,true);assert.equal(deleteCount(),before);
+  });
+  await test("still-present target after timeout is fail-closed, including on retry",async()=>{
+    const a=await newTest("still-present-001");failure="delete-timeout-present";
+    const args={media_id:a.media_id,request_id:"delete-still-present-001"};const result=await core.deleteTestDraft("alice",args);failure="";
+    assert.equal(result.deleted,false);assert.equal(result.retry_safe,false);
+    const before=deleteCount();assert.equal((await core.deleteTestDraft("alice",args)).deleted,false);assert.equal(deleteCount(),before);
+  });
+  await test("WeChat success without target disappearance remains unverified",async()=>{
+    const a=await newTest("noop-001");failure="delete-no-op";
+    const result=await core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-noop-001"});failure="";
+    assert.equal(result.deleted,false);assert.equal(upstream.has(a.media_id),true);
+  });
+  await test("other user and other account cannot use another user's provenance",async()=>{
+    const a=await newTest("owner-001");await core.saveConnection("bob",{app_id:"wxabcdefgh12345678",app_secret:"mock-bob-secret-not-real"});
+    const before=deleteCount();await assert.rejects(()=>core.deleteTestDraft("bob",{media_id:a.media_id,request_id:"delete-other-user-001"}),/可信测试草稿创建记录/);
+    const row=records.get(connections).find(r=>r.userId==="alice");const oldApp=row.appId;row.appId="wxotheraccount123456";
+    await assert.rejects(()=>core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-other-app-001"}),/可信测试草稿创建记录/);
+    row.appId=oldApp;assert.equal(deleteCount(),before);
+  });
+  await test("parallel deletions of one target permit only one upstream call",async()=>{
+    const a=await newTest("parallel-001"),before=deleteCount();
+    const results=await Promise.allSettled([core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-parallel-001"}),core.deleteTestDraft("alice",{media_id:a.media_id,request_id:"delete-parallel-002"})]);
+    assert.equal(deleteCount(),before+1);assert.equal(results.filter(x=>x.status==="fulfilled"&&x.value.deleted===true).length>=1,true);
   });
   if(process.argv.includes("--layout")) {
     const html=fmt.prepareHtml('<h2>手机排版回归</h2><p>正文<strong>重点句</strong>与参考资料[1]。</p><pre><code>{"request_id":"example-001","url":"https://example.com/'+"long-identifier-".repeat(12)+'"}</code></pre><p><a href="https://example.com/">https://example.com/'+"long-link/".repeat(18)+'</a></p>',"html",[{title:"资料链接",url:"https://example.com/"}]);

@@ -16,7 +16,8 @@ const mf=new Miniflare({modules:paths.map(p=>({type:p.endsWith('.wasm')?'Compile
  if(url.pathname==='/cgi-bin/material/add_material') return Response.json({media_id:'test-cover-id'});
  if(url.pathname==='/cgi-bin/media/uploadimg') return Response.json({url:'https://mmbiz.qpic.cn/test/body.jpg'});
  if(url.pathname==='/cgi-bin/draft/add') {const media_id='draft-'+upstream.size;upstream.set(media_id,body.articles);return Response.json({media_id});}
- if(url.pathname==='/cgi-bin/draft/get') return Response.json({news_item:upstream.get(body.media_id)});
+ if(url.pathname==='/cgi-bin/draft/get') return upstream.has(body.media_id)?Response.json({news_item:upstream.get(body.media_id)}):Response.json({errcode:40007,errmsg:'invalid media id'});
+ if(url.pathname==='/cgi-bin/draft/delete') {upstream.delete(body.media_id);return Response.json({errcode:0});}
  throw new Error('Unexpected outbound '+url.pathname);
 }});
 try {
@@ -36,4 +37,13 @@ try {
  const result=await rpc('wechat_prepare_and_save_draft',args);assert.equal(result.readback_verified,true,JSON.stringify(result));
  const before=calls.length;assert.deepEqual(await rpc('wechat_prepare_and_save_draft',args),result);assert.equal(calls.length,before);
  console.log('PASS built Worker end-to-end with real D1, durable idempotency, public URL fetch, inline Base64, formatting, upload and full readback');
+ const testArgs={...args,request_id:'built-worker-test-create-001',title:'【测试草稿·勿发布】Worker isolated deletion',test_draft:true};
+ const testDraft=await rpc('wechat_prepare_and_save_draft',testArgs);assert.equal(testDraft.readback_verified,true);
+ const delArgs={media_id:testDraft.media_id,request_id:'built-worker-test-delete-001'};
+ const deleted=await rpc('wechat_delete_test_draft',delArgs);assert.equal(deleted.outcome,'confirmed_deleted');assert.equal(upstream.has(testDraft.media_id),false);
+ const after=calls.filter(x=>x==='/cgi-bin/draft/delete').length;
+ assert.equal((await rpc('wechat_delete_test_draft',delArgs)).idempotent_replay,true);
+ assert.equal(calls.filter(x=>x==='/cgi-bin/draft/delete').length,after);
+ assert.equal(upstream.has(result.media_id),true,'ordinary draft remains untouched');
+ console.log('PASS built Worker guarded exact-ID delete, durable provenance, absent readback, idempotent retry and unrelated draft preservation');
 } finally {await mf.dispose();}

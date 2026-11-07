@@ -37,8 +37,8 @@ export async function connectionStatus(userId: string) {
     configured: !!c, verified: !!c?.verifiedAt, account: c?.label ?? null, app_id: c?.appId ?? null,
     route: c?.relayUrl ? "fixed_ip_relay" : "direct", relay_url: c?.relayUrl ?? "", has_app_secret: !!c?.secretCipher, has_relay_key: !!c?.relayKeyCipher,
     verified_at: c?.verifiedAt ?? null, last_error: c?.lastError ?? null, settings_url: SETTINGS_URL,
-    capabilities: ["create_draft", "update_draft", "list_drafts", "get_draft", "upload_images", "prepare_and_save_draft"],
-    service_version: "1.1.1", format_version: FORMAT_VERSION,
+    capabilities: ["create_draft", "update_draft", "list_drafts", "get_draft", "upload_images", "prepare_and_save_draft", "delete_test_draft"],
+    service_version: "1.2.0", format_version: FORMAT_VERSION,
     network_note: "直连托管服务不承诺固定出口 IP。若微信返回 40164，请配置固定公网 IP 的转发服务。",
   };
 }
@@ -78,7 +78,7 @@ function wechatError(data: Record<string, unknown>) {
 }
 async function wire(c: Connection, path: string, body?: unknown, token?: string, method = "POST") {
   const headers = new Headers();
-  const writesDraft = path === "/cgi-bin/draft/add" || path === "/cgi-bin/draft/update";
+  const writesDraft = path === "/cgi-bin/draft/add" || path === "/cgi-bin/draft/update" || path === "/cgi-bin/draft/delete";
   let destination: string;
   if (c.relayUrl) {
     destination = c.relayUrl;
@@ -229,6 +229,9 @@ export async function prepareAndSaveDraft(userId: string, args: Record<string, u
   const c = await config(userId), requestId = str(args.request_id, "请求编号", 100);
   if (!/^[a-zA-Z0-9_-]{8,100}$/.test(requestId)) throw new Error("请求编号应为 8–100 位字母、数字、下划线或连字符。");
   const title = str(args.title, "标题", 64), digest = str(args.digest ?? "", "摘要", 120, false);
+  if (args.test_draft !== undefined && args.test_draft !== true && args.test_draft !== false) throw new Error("测试草稿标记必须为布尔值。");
+  const testDraft = args.test_draft === true;
+  if (testDraft && !title.startsWith("【测试草稿·勿发布】")) throw new Error("测试草稿须以【测试草稿·勿发布】开头；此标记只在创建时记录，不能用于删除授权。");
   const content = str(args.content, "正文", 20000), author = str(args.author, "作者", 16, false);
   const format = args.content_format ?? "html";
   if (format !== "text" && format !== "html") throw new Error("正文格式应为 text 或 html。");
@@ -268,7 +271,7 @@ export async function prepareAndSaveDraft(userId: string, args: Record<string, u
     stage = "format";
     const html = prepareHtml(content, format, refs, new Map(uploadedBody.map(x=>[x.id, String(x.url)])));
     const article = validateArticle({ title, digest, author, content:html, thumb_media_id:uploadedCover.media_id, content_source_url:args.content_source_url });
-    saved = { expected: article, assets: { cover:uploadedCover, body_images:uploadedBody }, format_version:FORMAT_VERSION };
+    saved = { expected: article, assets: { cover:uploadedCover, body_images:uploadedBody }, format_version:FORMAT_VERSION, test_draft:testDraft };
     stage = "create";
     await getDb().update(receipts).set({state:"submitting",result:JSON.stringify(saved)}).where(eq(receipts.id,id));
     submitted = true;
@@ -279,6 +282,7 @@ export async function prepareAndSaveDraft(userId: string, args: Record<string, u
     await getDb().update(receipts).set({state:"verifying",result:JSON.stringify(saved)}).where(eq(receipts.id,id));
     stage = "readback";
     const result = { created:true, outcome:"saved", request_id:requestId, media_id:response.media_id, assets:saved.assets, format_version:FORMAT_VERSION, ...await readback(c,response.media_id,[article]), published:false };
+    if (testDraft && result.readback_verified && "draft" in result) await recordTestDraft(c, response.media_id, id, result.draft);
     await getDb().update(receipts).set({state:result.readback_verified?"complete":"verifying",result:JSON.stringify(result.readback_verified?result:{...saved,last_result:result})}).where(eq(receipts.id,id));
     return result;
   } catch(e) {
@@ -295,7 +299,10 @@ async function reconcilePrepared(c: Connection, id: string, requestId: string, s
   const expected = validateArticle(saved.expected);
   if (typeof saved.media_id === "string") {
     const result={created:true,outcome:"saved",request_id:requestId,media_id:saved.media_id,assets:saved.assets,format_version:FORMAT_VERSION,...await readback(c,saved.media_id,[expected]),published:false};
-    if(result.readback_verified) await getDb().update(receipts).set({state:"complete",result:JSON.stringify(result)}).where(eq(receipts.id,id));
+    if(result.readback_verified) {
+      if(saved.test_draft===true && "draft" in result) await recordTestDraft(c,saved.media_id,id,result.draft);
+      await getDb().update(receipts).set({state:"complete",result:JSON.stringify(result)}).where(eq(receipts.id,id));
+    }
     return result;
   }
   // A timeout never authorizes a second add. Scan a bounded recent draft window.
@@ -318,4 +325,98 @@ async function reconcilePrepared(c: Connection, id: string, requestId: string, s
     }
     return {request_id:requestId,created:false,readback_verified:false,outcome:"unknown",stage:"reconcile",candidate_media_ids:candidates,scan_limit:200,total_drafts:total,retry_safe:false,published:false,message:"已检查草稿但尚无法唯一确认。禁止再次提交；稍后使用相同请求编号和参数重查。"};
   } catch { return {request_id:requestId,created:false,readback_verified:false,outcome:"unknown",stage:"reconcile",retry_safe:false,published:false,message:"结果未知且草稿查询未完成。禁止重复创建；稍后用相同参数重查。"}; }
+}
+
+// Only a successfully read-back, explicitly test-purpose creation can obtain this
+// server-owned provenance. Historical receipts are never inferred or backfilled.
+async function recordTestDraft(c: Connection, mediaId: string, creationReceiptId: string, readDraft: unknown) {
+  const draft=object(readDraft), list=Array.isArray(draft.articles)?draft.articles:[];
+  if (draft.media_id!==mediaId || list.length!==1) throw new Error("测试草稿来源校验失败，未登记删除资格。");
+  const a=object(list[0]);
+  if (!String(a.title).startsWith("【测试草稿·勿发布】")) throw new Error("测试草稿标记未在微信读回，未登记删除资格。");
+  const snapshot={media_id:mediaId,title:a.title,digest:a.digest,thumb_media_id:a.thumb_media_id,content_hash:a.content_hash,creation_receipt_id:creationReceiptId};
+  const id=await hash(["test_draft_provenance",c.userId,c.appId,mediaId]);
+  const payloadHash=await hash(snapshot);
+  const inserted=await getDb().insert(receipts).values({id,userId:c.userId,appId:c.appId,kind:"test_draft_provenance",payloadHash,state:"active",result:JSON.stringify(snapshot),createdAt:now()}).onConflictDoNothing().returning({id:receipts.id});
+  if (!inserted.length) {
+    const existing=await getDb().select().from(receipts).where(eq(receipts.id,id)).get();
+    if(existing?.kind!=="test_draft_provenance"||existing.userId!==c.userId||existing.appId!==c.appId||existing.payloadHash!==payloadHash||existing.state!=="active") throw new Error("测试草稿来源记录不一致，禁止覆盖。");
+  }
+}
+
+function absentDraft(e: unknown) { return e instanceof WeChatError && e.code===40007; }
+async function deleteLookup(c: Connection, mediaId: string) {
+  try { return {kind:"present" as const,draft:await getDraftFor(c,mediaId)}; }
+  catch(e) { if(absentDraft(e)) return {kind:"absent" as const}; throw e; }
+}
+async function reconcileDelete(c:Connection, mediaId:string, receiptId:string, provenanceId:string, requestId:string, sent:boolean) {
+  try {
+    const lookup=await deleteLookup(c,mediaId);
+    if(lookup.kind==="absent") {
+      const result={request_id:requestId,media_id:mediaId,deleted:true,outcome:sent?"confirmed_deleted":"confirmed_absent_after_unknown",readback_verified:true};
+      await getDb().update(receipts).set({state:"complete",result:JSON.stringify(result)}).where(and(eq(receipts.id,receiptId),eq(receipts.state,"submitted")));
+      await getDb().update(receipts).set({state:"deleted",result:JSON.stringify({media_id:mediaId,delete_receipt_id:receiptId})}).where(and(eq(receipts.id,provenanceId),eq(receipts.state,"deleting")));
+      return result;
+    }
+    return {request_id:requestId,media_id:mediaId,deleted:false,outcome:"unknown_or_still_present",retry_safe:false,message:"删除请求可能已到达微信，但目标仍可读取。禁止自动再次发送删除；请稍后使用同一 request_id 查询。"};
+  } catch {
+    return {request_id:requestId,media_id:mediaId,deleted:false,outcome:"unknown_lookup_failed",retry_safe:false,message:"删除结果未知，草稿状态查询失败。禁止再次发送删除；请稍后使用同一 request_id 查询。"};
+  }
+}
+
+export async function deleteTestDraft(userId:string,args:Record<string,unknown>) {
+  const c=await config(userId),mediaId=str(args.media_id,"草稿 ID",1024),requestId=str(args.request_id,"请求编号",100);
+  if(!/^[a-zA-Z0-9_-]{8,100}$/.test(requestId)) throw new Error("请求编号应为 8–100 位字母、数字、下划线或连字符。");
+  const receiptId=await hash([c.userId,c.appId,requestId]),provenanceId=await hash(["test_draft_provenance",c.userId,c.appId,mediaId]);
+  const payloadHash=await hash(["delete_test_draft",mediaId]);
+  const previous=await getDb().select().from(receipts).where(eq(receipts.id,receiptId)).get();
+  if(previous) {
+    if(previous.kind!=="delete_test_draft"||previous.payloadHash!==payloadHash) throw new Error("此 request_id 已用于其他操作或草稿，拒绝跨目标重试。");
+    if(previous.state==="complete"&&previous.result) return {...JSON.parse(previous.result),idempotent_replay:true};
+    if(previous.state==="submitted") return reconcileDelete(c,mediaId,receiptId,provenanceId,requestId,false);
+    return {request_id:requestId,media_id:mediaId,deleted:false,outcome:previous.state==="failed"?"previous_failure":"in_progress",retry_safe:false};
+  }
+  const provenance=await getDb().select().from(receipts).where(eq(receipts.id,provenanceId)).get();
+  if(!provenance||provenance.kind!=="test_draft_provenance"||provenance.userId!==userId||provenance.appId!==c.appId) throw new Error("没有当前用户和公众号的可信测试草稿创建记录，拒绝删除。历史草稿不会自动补记来源。");
+  if(provenance.state==="deleted") return {request_id:requestId,media_id:mediaId,deleted:true,outcome:"already_deleted",idempotent_replay:true};
+  if(provenance.state!=="active"||!provenance.result) throw new Error("此测试草稿正由另一操作处理或状态未知，拒绝并发删除。");
+  const snapshot=object(JSON.parse(provenance.result));
+  if(await hash(snapshot)!==provenance.payloadHash||snapshot.media_id!==mediaId) throw new Error("测试草稿来源记录校验失败，拒绝删除。");
+  const creator=await getDb().select().from(receipts).where(eq(receipts.id,String(snapshot.creation_receipt_id))).get();
+  if(!creator||creator.kind!=="prepare_and_save_draft"||creator.userId!==userId||creator.appId!==c.appId||creator.state!=="complete"||!creator.result||JSON.parse(creator.result).media_id!==mediaId) throw new Error("测试草稿创建记录缺失或不一致，拒绝删除。");
+  const before=await deleteLookup(c,mediaId);
+  if(before.kind!=="present") throw new Error("草稿当前不存在或不属于该公众号；没有已完成的删除记录，拒绝视为删除成功。");
+  const list=before.draft.articles;
+  if(list.length!==1||list[0].title!==snapshot.title||list[0].digest!==snapshot.digest||list[0].thumb_media_id!==snapshot.thumb_media_id||list[0].content_hash!==snapshot.content_hash) throw new Error("草稿内容、摘要、封面或身份已变化，拒绝自动删除；请人工逐条核对。");
+  // Audit intent before the destructive call; CAS on provenance is the per-target lock.
+  const inserted=await getDb().insert(receipts).values({id:receiptId,userId,appId:c.appId,kind:"delete_test_draft",payloadHash,state:"checking",result:JSON.stringify({media_id:mediaId,provenance_id:provenanceId,expected_content_hash:snapshot.content_hash,requested_at:now()}),createdAt:now()}).onConflictDoNothing().returning({id:receipts.id});
+  if(!inserted.length) return {request_id:requestId,media_id:mediaId,deleted:false,outcome:"in_progress",retry_safe:false};
+  const locked=await getDb().update(receipts).set({state:"deleting"}).where(and(eq(receipts.id,provenanceId),eq(receipts.state,"active"))).returning({id:receipts.id});
+  if(!locked.length) {
+    await getDb().update(receipts).set({state:"failed",result:JSON.stringify({reason:"target_locked"})}).where(eq(receipts.id,receiptId));
+    return {request_id:requestId,media_id:mediaId,deleted:false,outcome:"target_locked",retry_safe:false};
+  }
+  // Re-read after taking the per-target lock: a draft edited during the first
+  // provenance lookup must not be deleted based on the earlier snapshot.
+  try {
+    const latest=await deleteLookup(c,mediaId);
+    const a=latest.kind==="present"&&latest.draft.articles.length===1?latest.draft.articles[0]:null;
+    if(!a||a.title!==snapshot.title||a.digest!==snapshot.digest||a.thumb_media_id!==snapshot.thumb_media_id||a.content_hash!==snapshot.content_hash) throw new Error("草稿在删除前已变化或不可读取，拒绝自动删除。");
+  } catch(e) {
+    await getDb().update(receipts).set({state:"failed",result:JSON.stringify({reason:"pre_submit_recheck_failed",checked_at:now()})}).where(eq(receipts.id,receiptId));
+    await getDb().update(receipts).set({state:"active"}).where(and(eq(receipts.id,provenanceId),eq(receipts.state,"deleting")));
+    throw e;
+  }
+  await getDb().update(receipts).set({state:"submitted"}).where(eq(receipts.id,receiptId));
+  try {
+    await api(c,"/cgi-bin/draft/delete",{media_id:mediaId});
+    return reconcileDelete(c,mediaId,receiptId,provenanceId,requestId,true);
+  } catch(e) {
+    if(e instanceof WeChatError) {
+      await getDb().update(receipts).set({state:"failed",result:JSON.stringify({media_id:mediaId,wechat_error_code:e.code,failed_at:now()})}).where(eq(receipts.id,receiptId));
+      await getDb().update(receipts).set({state:"active"}).where(and(eq(receipts.id,provenanceId),eq(receipts.state,"deleting")));
+      throw e;
+    }
+    return reconcileDelete(c,mediaId,receiptId,provenanceId,requestId,false);
+  }
 }
