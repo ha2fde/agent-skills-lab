@@ -28,3 +28,10 @@ Source `2f584bc149fac943fe499d0311d715d2ae0aa9cd`; saved version `appgprj_6aed4c
 ## Current v10 / MCP 1.2.3 — readability default, article-specific styles
 
 Source `18a298e2775787edf02b62b8624365907955b75c`; saved version `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_302ff6f6d0e08191bdbeed607e2de692`; deployment `appgdep_6aeedf4be0208191a3d975581de3f9d6` succeeded. Safe inline CSS in `content` works through the current high-level tool even when optional `theme` is missing from a cached ChatGPT schema. Default mobile readability fixes are not color mandates. The live synthetic draft was read back with a non-white palette, then deleted by the guarded exact-ID tool with absent-target confirmation. Roll back to same-project v9 saved version `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_b5a45819db48819183c57cba265d02ea`; no schema/secret changes.
+
+## v11 / MCP 1.2.4 — 草稿校验
+
+- 原项目部署 appgdep_6aef026699088191899683b9d4cc8f73 成功。Sites 源提交 `ff582fc00011ed729e041407990eb9e17e127977`，GitHub 镜像提交 `6b51d84739843e53e2d8b57a27102ea51e688951`。逐文件比对 141 个 Git blob。项目受众和插件 ID 一致。回滚使用本项目 v10 已保存版本 `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_302ff6f6d0e08191bdbeed607e2de692`。
+- 更新发布规则时分别更新 GitHub 与已安装的个人 Skill。此次发布的个人 Skill 使用随包规范。GitHub 变更不会直接替换安装内容，也不会部署 MCP。修改 MCP 后按本页步骤从原项目源代码构建、部署，再核对线上连接状态与 ChatGPT 实际工具参数。
+- 新会话需以同账号 Work 自然语言请求验证自动选用。旧会话工具目录可能继续缺少 `changed_fields`。当前目录缺少时，修改草稿沿用全字段读回、只替换获授权字段、保留未改正文 HTML 的兼容路径。
+- 微信合成稿正常写入及独立读回通过，微信 CDN URL 的等价改写通过身份比较。损坏图片、低对比度和文本伪流程图被拒绝。经受保护机制精确删除测试稿，独立查询确认目标不存在，草稿库存与基线一致。手机真实预览和独立登录 Work 会话触发未验收。
