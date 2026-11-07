@@ -6,7 +6,7 @@ import { connections, images, receipts } from "@/db/schema";
 import { articleFields, hash, integer, object, str, validateArticle, validateRelayUrl } from "./wechat-validation";
 import { imageFromArgs, prepareImage } from "./wechat-image";
 
-import { normalizeHtml, prepareHtml, verifyArticle, FORMAT_VERSION } from "./wechat-format";
+import { normalizeHtml, prepareHtml, verifyArticle, wechatImageUrl, FORMAT_VERSION } from "./wechat-format";
 
 type Connection = typeof connections.$inferSelect;
 const now = () => new Date().toISOString();
@@ -38,7 +38,7 @@ export async function connectionStatus(userId: string) {
     route: c?.relayUrl ? "fixed_ip_relay" : "direct", relay_url: c?.relayUrl ?? "", has_app_secret: !!c?.secretCipher, has_relay_key: !!c?.relayKeyCipher,
     verified_at: c?.verifiedAt ?? null, last_error: c?.lastError ?? null, settings_url: SETTINGS_URL,
     capabilities: ["create_draft", "update_draft", "list_drafts", "get_draft", "upload_images", "prepare_and_save_draft", "delete_test_draft"],
-    service_version: "1.2.3", format_version: FORMAT_VERSION,
+    service_version: "1.2.4", format_version: FORMAT_VERSION,
     network_note: "直连托管服务不承诺固定出口 IP。若微信返回 40164，请配置固定公网 IP 的转发服务。",
   };
 }
@@ -185,11 +185,20 @@ export async function createDraft(userId: string, args: Record<string, unknown>)
 }
 export async function updateDraft(userId: string, args: Record<string, unknown>) {
   const c = await config(userId), mediaId = str(args.media_id, "草稿 ID", 1024), index = integer(args.index ?? 0, "文章索引", 0, 7);
-  const expected = str(args.expected_content_hash, "当前内容指纹", 64), article = formattedArticle(args.article), requestId = str(args.request_id, "请求编号", 100);
+  const expected = str(args.expected_content_hash, "当前内容指纹", 64), requested = validateArticle(args.article), requestId = str(args.request_id, "请求编号", 100);
+  const changed = args.changed_fields;
+  const editable = Object.keys(requested);
+  if (changed !== undefined && (!Array.isArray(changed) || !changed.length || changed.some(field => !editable.includes(field)) || new Set(changed).size !== changed.length))
+    throw new Error("changed_fields 必须是非空、无重复的文章字段列表。");
   // The previous version is checked inside the deduplicated operation, so replaying a completed request remains safe.
-  return once(c, "update_draft", requestId, { mediaId, index, expected, article }, async () => {
+  return once(c, "update_draft", requestId, { mediaId, index, expected, requested, changed }, async () => {
     const before = await getDraftFor(c, mediaId), current = before.articles[index];
     if (!current || current.content_hash !== expected) throw new WeChatError(-1, "草稿已变化或文章索引无效，请重新读取草稿，再提交修改。");
+    const beforeFields = articleFields(current);
+    const fields = changed === undefined ? requested : validateArticle({
+      ...beforeFields, ...Object.fromEntries(Object.entries(requested).filter(([field]) => changed.includes(field))),
+    });
+    const article = fields.content === current.content ? fields : formattedArticle(fields);
     await api(c, "/cgi-bin/draft/update", { media_id: mediaId, index, articles: article });
     return { updated: true, request_id: requestId, media_id: mediaId, ...await readback(c, mediaId, [article], [index]) };
   });
@@ -201,8 +210,11 @@ export async function uploadImage(userId: string, bytes: Uint8Array, name: strin
   const mime = "image/jpeg", c = await config(userId), form = new FormData();
   form.set("media", new Blob([bytes as BlobPart], { type: mime }), "image.jpg");
   const data = await api(c, purpose === "cover" ? "/cgi-bin/material/add_material?type=image" : "/cgi-bin/media/uploadimg", form);
-  if (purpose === "cover" && typeof data.media_id !== "string") throw new Error("微信未返回封面素材 ID。");
-  if (purpose === "body" && typeof data.url !== "string") throw new Error("微信未返回正文图片 URL。");
+  if (purpose === "cover" && (typeof data.media_id !== "string" || !data.media_id.trim())) throw new Error("微信未返回封面素材 ID。");
+  if (purpose === "body") {
+    if (typeof data.url !== "string" || !data.url.trim()) throw new Error("微信未返回正文图片 URL。");
+    wechatImageUrl(data.url);
+  }
   const image = { id: crypto.randomUUID(), userId, appId: c.appId, name: str(name, "文件名", 180), purpose, mediaId: typeof data.media_id === "string" ? data.media_id : null, url: typeof data.url === "string" ? data.url : null, createdAt: now() };
   await getDb().insert(images).values(image);
   return { name: image.name, purpose, media_id: image.mediaId, url: image.url, uploaded_at: image.createdAt, processing: processed.metadata };
@@ -244,6 +256,9 @@ export async function prepareAndSaveDraft(userId: string, args: Record<string, u
     if ((input.image_url !== undefined) === (input.image_base64 !== undefined)) throw new Error("图片获取：image_url 和 image_base64 请选择一个提供。");
   };
   validateSource(cover); bodyInputs.forEach(validateSource);
+  for (const {id} of bodyInputs) {
+    if (!content.includes(`{{image:${id}}}`)) throw new Error("正文图片缺少对应的占位符。");
+  }
   // Validate all content before any upload. Placeholder URLs are validation-only.
   const preview = prepareHtml(content, format, refs, new Map(bodyInputs.map(x=>[x.id,"https://mmbiz.qpic.cn/validation-only"])), args.theme);
   validateArticle({ title, digest, author, content: preview, thumb_media_id: "validation-only", content_source_url: args.content_source_url });

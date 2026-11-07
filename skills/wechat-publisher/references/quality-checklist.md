@@ -1,41 +1,11 @@
-> The default is mobile readability: adequate type size, line height, paragraph spacing and wrapping. Navy/champagne-gold is one optional palette; honor any coherent article-specific background, text color and font.
+# 交付前检查
 
-# WeChat Article QA Checklist
-
-## Editorial
-- [ ] Title has an honest, specific curiosity gap; avoid unsupported promises.
-- [ ] First screen delivers tension and reason to keep reading.
-- [ ] Reader can identify with the story; no unapproved personal details.
-- [ ] Distinct thesis, useful examples, actionable conclusion, one natural engagement question.
-- [ ] No invented statistics, testimonials, or success stories.
-
-## Mobile presentation
-- [ ] Mobile-safe type and spacing; when no style requested, body 18px, heading 23px, ~1.85 line height.
-- [ ] Selective body highlights preserved after every edit.
-- [ ] Long code, MCP payloads, URLs and English identifiers wrap correctly on mobile.
-- [ ] Reference numbering continuous and complete.
-- [ ] Inline CSS supported by WeChat editor; readback inspected.
-
-## Images
-- [ ] Cover ~900×383, JPEG RGB baseline, optimized bytes and safe crop.
-- [ ] Approved Chinese headline wording unchanged.
-- [ ] Main and alternative thumbnail crop visually checked.
-- [ ] Cover uploaded to WeChat, `media_id` recorded.
-- [ ] Body images separately optimized and uploaded when used.
-- [ ] No claims about phone loading without actual phone preview.
-
-## Delivery
-- [ ] Draft created or updated; old draft preserved if requested.
-- [ ] Readback matches title, content, emphasis, digest and `thumb_media_id`.
-- [ ] Clearly distinguish draft success from publication.
-- [ ] Final publication only on explicit instruction.
-
-## Trigger and connected-tool checks
-- [ ] Clarify whether the request explicitly authorizes saving a draft; writing alone does not.
-- [ ] Confirm current callable schema rather than inferring from service version/capabilities.
-- [ ] For a new synthetic test, mark test_draft=true only if callable; exact-ID cleanup only with trusted provenance. Legacy drafts are excluded.
-- [ ] When saving was requested, let the user review in the draft box; report status succinctly, not the whole article in chat.
-
-- [ ] If an article theme was requested, pass `theme` to the high-level MCP, read back `visual_style`, and inspect actual background/text/font. A saved draft with `visual_style=false` is not visually accepted.
-
-- [ ] Safe inline article colors/background/font survive formatting even when the optional `theme` parameter is absent from a cached tool schema; readback confirms the result.
+| 检查 | 证据 |
+| --- | --- |
+| 编辑 | 开头交代关键问题，重点靠前，事实有依据，无私人工作案例或可识别信息 |
+| 配图 | 与封面和邻近段落互补，约 390px 宽仍可读，封面比例及裁切已看，图中无私人标识 |
+| 写入 | 实际可调用工具参数已检查，图片上传返回真实素材 ID 或微信 URL，使用稳定请求编号 |
+| 改稿 | 精确草稿及篇目，最新指纹，保存前对照所有未授权字段，保存后独立复核 |
+| 读回 | 核对标题、摘要、封面、正文、图片顺序及引用、样式和可用的检查明细 |
+| 手机 | 记录实际微信客户端和深浅色模式，或明确未检查 |
+| 测试清理 | 有明确合成标记和服务端来源登记，精确 ID 删除后验证不存在 |

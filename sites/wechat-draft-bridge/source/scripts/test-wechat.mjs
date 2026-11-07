@@ -72,7 +72,7 @@ globalThis.fetch = async (url, options) => {
     return Response.json({errcode:0,errmsg:"ok"});
   }
   if (path === "/cgi-bin/draft/update") { upstream.get(body.media_id)[body.index] = body.articles; return Response.json({ errcode: 0 }); }
-  if (path === "/cgi-bin/media/uploadimg") return Response.json({ url: "https://mmbiz.qpic.cn/mock/body.png" });
+  if (path === "/cgi-bin/media/uploadimg") return Response.json({ url: failure === "bad-image-ref" ? "https://other.example/image.png" : "https://mmbiz.qpic.cn/mock/body.png" });
   if (path === "/cgi-bin/material/add_material") return Response.json({ media_id: "mock-cover-upload", url: "https://mmbiz.qpic.cn/mock/cover.png" });
   throw new Error("Unexpected transport path: " + path);
 };
@@ -208,7 +208,7 @@ try {
     const next = await (await rpc("after-error", "tools/call", { name: "wechat_list_images", arguments: {} })).json();
     assert.equal(next.id, "after-error"); assert.equal(next.result.isError, false);
     const status = await (await rpc(1, "initialize", { protocolVersion: "2026-07-28" })).json();
-    assert.equal(status.result.serverInfo.version, "1.2.3");
+    assert.equal(status.result.serverInfo.version, "1.2.4");
   });
   await test("oversized streamed MCP requests return a bounded JSON-RPC error", async () => {
     const response = await route.namespace.POST(new Request("https://mock.test/mcp", { method: "POST", body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { data: "A".repeat(512 * 1024) } }) }));
@@ -224,7 +224,7 @@ try {
     assert.ok(!tools.some(t => /publish|send/.test(t.name)));
     assert.deepEqual(tools.at(-1).inputSchema.required,["media_id","request_id"]);
     assert.equal(tools.find(t=>t.name==="wechat_prepare_and_save_draft").inputSchema.properties.test_draft.type,"boolean");
-    assert.match(root.namespace.instructions,/只要求写作.*不自动写入/);
+    assert.match(root.namespace.instructions,/用户授权或已明确设定的交付默认/);
     for (const t of tools) assert.equal(t.inputSchema.type, "object");
   });
 
@@ -273,11 +273,49 @@ try {
     const expected=validation.validateArticle({...article,content:html});assert.equal(fmt.verifyArticle(expected,expected).verified,true);
     assert.equal(fmt.verifyArticle(expected,{...expected,content:html.replace("background-color:#17283f","background-color:#333333")}).checks.visual_style,false,html);
   });
+  await test("unboxed default rejects low contrast, selection-like fills and text diagrams", async () => {
+    assert.doesNotMatch(fmt.normalizeHtml("<p>正文<strong>重点</strong></p>"), /background-color/);
+    assert.throws(() => fmt.normalizeHtml('<p style="color:#eeeeee">正文</p>'), /对比度/);
+    assert.throws(() => fmt.normalizeHtml('<p>正文<span style="background-color:#bbddff">重点</span></p>'), /底色/);
+    assert.throws(() => fmt.normalizeHtml('<p>输入 <span>→ 分析</span> → 输出</p>'), /流程图/);
+    assert.throws(() => fmt.normalizeHtml('<pre>+---+---+</pre>'), /流程图/);
+    assert.match(fmt.normalizeHtml('<pre><code>x =&gt; y =&gt; z</code></pre>'), /x/);
+  });
+  await test("readback detects spacing and image width rewrites", async () => {
+    const content = fmt.normalizeHtml('<p>正文</p><img src="https://mmbiz.qpic.cn/mock">');
+    const expected = validation.validateArticle({...article,content});
+    for (const modified of [content.replace("margin:0 0 22px;", ""), content.replace("width:100%;height:auto", "width:900px;height:auto")]) {
+      assert.equal(fmt.verifyArticle(expected, {...expected,content:modified}).checks.visual_style,false);
+    }
+  });
   const prepareArgs={request_id:"prepared-success-001",title:"一键保存测试",digest:"测试摘要",content:'<h2>标题</h2><p>正文<strong>重点</strong>[1]</p>{{image:body1}}',cover:{image_base64:fixture.toString("base64")},body_images:[{id:"body1",image_base64:fixture.toString("base64")}],references:[{title:"参考",url:"https://example.com/"}]};
   await test("one-click uploads images, formats, saves, verifies and replays without side effects",async()=>{
     const result=await core.prepareAndSaveDraft("alice",prepareArgs); assert.equal(result.created,true);assert.equal(result.readback_verified,true);assert.equal(result.published,false);
     const before=calls.length; assert.deepEqual(await core.prepareAndSaveDraft("alice",prepareArgs),result);assert.equal(calls.length,before);
     await assert.rejects(()=>core.prepareAndSaveDraft("alice",{...prepareArgs,title:"different"}),/不同内容/);
+  });
+  await test("invalid upload response never submits a draft", async () => {
+    const before = calls.filter(path => path === "/cgi-bin/draft/add").length;
+    failure = "bad-image-ref";
+    try {
+      const result = await core.prepareAndSaveDraft("alice", {...prepareArgs,request_id:"invalid-upload-001"});
+      assert.equal(result.created, false);
+      assert.equal(result.readback_verified, false);
+      assert.equal(result.stage, "body_images");
+      assert.equal(calls.filter(path => path === "/cgi-bin/draft/add").length, before);
+    } finally { failure = ""; }
+  });
+  await test("field-scoped update preserves approved cover and exact HTML", async () => {
+    const saved = await core.prepareAndSaveDraft("alice", {...prepareArgs,request_id:"scoped-create-001"});
+    const before = saved.draft.articles[0];
+    const result = await core.updateDraft("alice", {
+      request_id:"scoped-update-001",media_id:saved.media_id,expected_content_hash:before.content_hash,
+      changed_fields:["digest"],article:{...article,digest:"新摘要",thumb_media_id:"unintended-cover"},
+    });
+    assert.equal(result.readback_verified,true);
+    const after = result.draft.articles[0];
+    assert.equal(after.digest,"新摘要");
+    for (const field of ["content","title","thumb_media_id"]) assert.equal(after[field],before[field]);
   });
   await test("one-click custom theme survives create and readback",async()=>{
     const args={...prepareArgs,request_id:"prepared-theme-001",title:"白底黑字主题测试",theme:{background_color:"#ffffff",text_color:"#000000",heading_color:"#000000",font_family:"serif",body_size:19,heading_size:25,line_height:1.9}};

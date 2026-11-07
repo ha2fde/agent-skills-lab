@@ -4,9 +4,9 @@ import { textContent } from "domutils";
 import { UserFacingError } from "./errors";
 import { object, str, type Article } from "./wechat-validation";
 
-export const FORMAT_VERSION = "mobile-style-v3";
+export const FORMAT_VERSION = "mobile-style-v4";
 export type ArticleTheme = { background_color: string; text_color: string; heading_color: string; accent_color: string; font_family: "system" | "serif"; body_size: number; heading_size: number; line_height: number };
-const defaultTheme: ArticleTheme = { background_color:"#ffffff", text_color:"#17283f", heading_color:"#17283f", accent_color:"#c4a46a", font_family:"system", body_size:18, heading_size:23, line_height:1.85 };
+const defaultTheme: ArticleTheme = { background_color:"#ffffff", text_color:"#4c5665", heading_color:"#506d92", accent_color:"#946b30", font_family:"system", body_size:18, heading_size:23, line_height:1.85 };
 export function resolveTheme(value: unknown): ArticleTheme {
   if (value === undefined) return { ...defaultTheme };
   const input = object(value);
@@ -47,26 +47,26 @@ function safeInlineStyle(input: string, tag: string): string {
   }
   return accepted.join("");
 }
-function themeStyles(t: ArticleTheme): Record<string, string> {
+function themeStyles(t: ArticleTheme, explicitBackground: boolean): Record<string, string> {
   const font = t.font_family === "serif" ? 'Georgia,"Songti SC","Noto Serif CJK SC",serif' : '-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif';
   const body = `font-size:${t.body_size}px;line-height:${t.line_height};`;
   return {
-  section: wrap + body + `color:${t.text_color};background-color:${t.background_color};font-family:${font};`,
+  section: wrap + body + `color:${t.text_color};font-family:${font};` + (explicitBackground ? `background-color:${t.background_color};` : ""),
   p: wrap + body + "margin:0 0 22px;",
   h2: wrap + `font-size:${t.heading_size}px;line-height:1.5;color:${t.heading_color};margin:40px 0 22px;font-weight:700;`,
   h3: wrap + `font-size:${Math.max(18,t.heading_size-2)}px;line-height:1.5;color:${t.heading_color};margin:32px 0 20px;font-weight:700;`,
-  strong: `font-weight:700;color:${t.heading_color};`,
+  strong: "font-weight:700;",
   em: "font-style:italic;", span: wrap,
   a: wrap + `color:${t.heading_color};text-decoration:underline;`,
-  pre: wrap + "font-size:15px;line-height:1.85;white-space:pre-wrap;margin:20px 0;padding:16px;background-color:#f5f3ef;",
+  pre: wrap + "font-size:15px;line-height:1.85;white-space:pre-wrap;margin:20px 0;padding:16px;",
   code: wrap + "font-size:15px;white-space:pre-wrap;",
-  blockquote: wrap + `margin:24px 0;padding:18px;background-color:${t.background_color};color:${t.text_color};`,
+  blockquote: wrap + `margin:24px 0;padding:18px;`,
   ul: wrap + "padding-left:24px;margin:0 0 22px;", ol: wrap + "padding-left:24px;margin:0 0 22px;",
   li: wrap + body + "margin:0 0 12px;",
   img: "max-width:100%;width:100%;height:auto;display:block;margin:24px auto;",
   hr: `border:0;border-top:1px solid ${t.accent_color};margin:28px 0;`, br: "",
   table: wrap + "width:100%;table-layout:fixed;border-collapse:collapse;font-size:16px;margin:24px 0;",
-  thead: "", tbody: "", tr: "", th: wrap + "padding:8px;background-color:#f5f3ef;", td: wrap + "padding:8px;border-bottom:1px solid #ddd;",
+  thead: "", tbody: "", tr: "", th: wrap + "padding:8px;", td: wrap + "padding:8px;border-bottom:1px solid #ddd;",
   };
 }
 export const escapeHtml = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -81,12 +81,49 @@ export function wechatImageUrl(value: string) {
   if (!/(?:^|\.)(?:qpic\.cn|qlogo\.cn|weixin\.qq\.com)$/.test(u.hostname)) throw new UserFacingError("排版校验：正文图片必须先上传微信。");
   return value;
 }
+
+function css(style: string) {
+  const props = new Map<string, string>();
+  for (const part of style.split(";")) {
+    const colon = part.indexOf(":");
+    if (colon >= 0) props.set(part.slice(0, colon).trim().toLowerCase(), part.slice(colon + 1).trim().toLowerCase().replace(/\s+/g, " "));
+  }
+  return props;
+}
+
+function luminance(color: string) {
+  const hex = color.match(/^#([a-f0-9]{6}|[a-f0-9]{3})$/i)?.[1];
+  const rgb = color.match(/^rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+  const values = hex ? (hex.length === 3 ? [...hex].map(x => x + x) : hex.match(/../g)!).map(x => parseInt(x, 16))
+    : rgb?.slice(1).map(Number);
+  if (!values || values.some(v => v > 255)) return undefined;
+  const [r, g, b] = values.map(v => {
+    const channel = v / 255;
+    return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrastOk(foreground: string, background: string) {
+  const fg = luminance(foreground), bg = luminance(background);
+  return fg !== undefined && bg !== undefined && (Math.max(fg, bg) + 0.05) / (Math.min(fg, bg) + 0.05) >= 4.5;
+}
+
+function pseudoDiagram(value: string) {
+  const arrows = /(?:-{1,3}>|={1,3}>|[→⇒➜➝⟶↓⇓←↔])/g;
+  return (value.match(arrows)?.length ?? 0) >= 2 || /[┌┐└┘├┤┬┴┼╔╗╚╝╠╣]/.test(value) || /(?:^|\n)\s*\+(?:[-=]{2,}\+)+/.test(value);
+}
+
 export function normalizeHtml(content: string, theme?: unknown): string {
   if (content.length > 100000) throw new UserFacingError("排版校验：正文过长。");
-  const t = resolveTheme(theme), styles = themeStyles(t);
+  const t = resolveTheme(theme), styles = themeStyles(t, theme !== undefined && object(theme).background_color !== undefined);
   const document = parseDocument(content, { decodeEntities: true });
-  function render(node: AnyNode): string {
-    if (node.type === "text") return escapeHtml(node.data);
+  function render(node: AnyNode, fg: string, bg: string, code = false): string {
+    if (node.type === "text") {
+      if (node.data.trim() && !contrastOk(fg, bg)) throw new UserFacingError("排版校验：文字与背景对比度至少须为 4.5:1。请调整颜色。");
+      if (!code && pseudoDiagram(node.data)) throw new UserFacingError("排版校验：请把文本箭头流程图改为清晰的独立图片。");
+      return escapeHtml(node.data);
+    }
     if (node.type === "comment") return "";
     if (!isTag(node)) return "";
     let tag = node.name.toLowerCase();
@@ -96,16 +133,23 @@ export function normalizeHtml(content: string, theme?: unknown): string {
     if (tag === "b") tag = "strong";
     if (tag === "div" || tag === "article") tag = "section";
     if (!(tag in styles)) throw new UserFacingError("排版校验：正文含不支持的 HTML 标签。");
-    let style = styles[tag];
+    const inline = safeInlineStyle(node.attribs.style ?? "", tag);
+    if (css(inline).has("background-color") && !["section","blockquote","pre","th","td"].includes(tag))
+      throw new UserFacingError("排版校验：段落、标题和行内文字不允许整块底色。请使用清晰的文字颜色和留白。");
+    if (["p","h2","h3","pre","li"].includes(tag) && (tag === "pre" ? /[┌┐└┘├┤┼╔╗╚╝]|(?:^|\n)\s*\+(?:[-=]{2,}\+)+/.test(textContent(node)) : pseudoDiagram(textContent(node))))
+      throw new UserFacingError("排版校验：检测到文本伪流程图，请改为独立图片。");
+    let style = tag === "section" ? wrap + `font-size:${t.body_size}px;line-height:${t.line_height};` : styles[tag];
     // Explicit safe per-article inline styles override fallback typography/palette.
-    style += safeInlineStyle(node.attribs.style ?? "", tag);
+    style += inline;
+    const props = css(style);
+    const nextFg = props.get("color") ?? fg, nextBg = props.get("background-color") ?? bg;
     let attrs = style ? ` style="${escapeHtml(style)}"` : "";
     if (tag === "a") attrs += ` href="${escapeHtml(httpUrl(node.attribs.href ?? ""))}"`;
     if (tag === "img") attrs += ` src="${escapeHtml(wechatImageUrl(node.attribs.src ?? node.attribs["data-src"] ?? ""))}" alt="${escapeHtml(node.attribs.alt ?? "")}"`;
     if (tag === "img" || tag === "br" || tag === "hr") return `<${tag}${attrs}>`;
-    return `<${tag}${attrs}>${node.children.map(render).join("")}</${tag}>`;
+    return `<${tag}${attrs}>${node.children.map(child => render(child, nextFg, nextBg, code || tag === "code" || tag === "pre")).join("")}</${tag}>`;
   }
-  const html = document.children.map(render).join("");
+  const html = document.children.map(node => render(node, t.text_color, t.background_color)).join("");
   if (!textContent(document).trim()) throw new UserFacingError("排版校验：正文没有文字。");
   return `<section style="${escapeHtml(styles.section)}">${html}</section>`;
 }
@@ -145,9 +189,13 @@ function surface(content: string) {
   const walk = (nodes: AnyNode[]) => nodes.forEach(n => {
     if (!isTag(n)) return;
     const s = n.attribs.style ?? "";
-    if (["section","p","h2","h3","strong","span","em","li","a","pre","code","blockquote","hr","th","td"].includes(n.name)) {
+    if (["section","p","h2","h3","strong","span","em","li","a","pre","code","blockquote","hr","th","td","img","table","ul","ol"].includes(n.name)) {
       const props: Record<string,string> = {};
-      for (const part of s.split(";")) { const pos=part.indexOf(":"); if(pos<0) continue; const key=part.slice(0,pos).trim().toLowerCase(); if(["color","background-color","font-family","font-size","line-height","border-top"].includes(key)) props[key]=part.slice(pos+1).trim().toLowerCase().replace(/\s+/g," "); }
+      const declarations = css(s);
+      for (const key of ["color","background-color","font-family","font-size","line-height","border-top","font-weight","text-align","letter-spacing","word-spacing","width","max-width","height","min-width","white-space","display","position","table-layout","margin","margin-top","margin-bottom","padding","padding-top","padding-bottom","padding-left","padding-right"]) {
+        const value = declarations.get(key);
+        if (value !== undefined) props[key] = value;
+      }
       visualStyles.push(props);
     }
     if (n.name === "img") images.push(imageIdentity(n.attribs.src ?? n.attribs["data-src"] ?? ""));
@@ -156,7 +204,7 @@ function surface(content: string) {
     if (n.name === "strong" || n.name === "b") emphasis.push(textContent(n));
     if (/font-size:\s*(?:1[4-9]|2[0-2])px/i.test(s) && /line-height:\s*(?:1\.[5-9]\d*|2(?:\.\d+)?)/.test(s)) bodyStyle = true;
     if (["a", "pre", "code"].includes(n.name)) wrapStyle &&= /(?:overflow-wrap:\s*anywhere|word-wrap:\s*break-word)/.test(s);
-    if (["script", "iframe", "style", "form"].includes(n.name)) unsafe = true;
+    if (["script", "iframe", "style", "form", "object", "embed", "svg"].includes(n.name) || Object.keys(n.attribs).some(key => /^on/i.test(key))) unsafe = true;
     walk(n.children);
   }); walk(d.children);
   return { text: textContent(d).replace(/\s+/g, " ").trim(), images, links, headings, emphasis, visualStyles, safe: !unsafe, bodyStyle, headingStyle, wrapStyle };
@@ -165,7 +213,7 @@ export function verifyArticle(expected: Article, actual: Article) {
   const a = surface(expected.content), b = surface(actual.content);
   const same = (x: unknown, y: unknown) => JSON.stringify(x) === JSON.stringify(y);
   const checks = { title: expected.title === actual.title, digest: expected.digest === actual.digest, cover: expected.thumb_media_id === actual.thumb_media_id,
-    author: expected.author === actual.author, source_url: expected.content_source_url === actual.content_source_url,
+    author: expected.author === actual.author, comments: expected.need_open_comment === actual.need_open_comment && expected.only_fans_can_comment === actual.only_fans_can_comment, source_url: expected.content_source_url === actual.content_source_url,
     text: a.text === b.text, images: same(a.images, b.images), links: same(a.links, b.links), headings: same(a.headings, b.headings), emphasis: same(a.emphasis, b.emphasis),
     mobile_styles: b.bodyStyle && b.headingStyle && b.wrapStyle, visual_style: same(a.visualStyles,b.visualStyles), static_html: b.safe };
   return { verified: Object.values(checks).every(Boolean), checks, html_exact_match: expected.content === actual.content, phone_preview_checked: false };
