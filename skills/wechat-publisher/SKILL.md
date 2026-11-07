@@ -51,6 +51,16 @@ Determine the **article genre before writing**, and do not blend incompatible st
 - For technical WeChat articles, favor a compact upfront **core conclusion**, then **3–6 high-density sections**, a product comparison across explicit dimensions, and a mobile-readable vertical architecture flow (identity/entry → task persistence/orchestration → tools/execution runtime → resources → artifacts/approval). Distinguish product-confirmed capabilities from proposed architecture, and local remote-control from true server-side persistence. Include operational aspects: asynchronous execution, scheduling, state checkpoints, offline/retry, data sync, permission boundaries, costs, security/audit, and actual limitations if relevant.
 - Preserve user's private details by default. When revising an existing draft, update **in place** (get_draft → latest hash → update_draft → readback); keep its existing cover/images unless explicitly asked to change them. Avoid duplicating references or source lists.
 
+### Technical article readability override (2026-11-07)
+
+For public-facing technical WeChat essays, **technical does not mean engineering documentation**. The priority order is: **clear central insight → readable logic → meaningful technical depth → supporting facts**. Never equate information density with jargon volume, exhaustive checklists, product feature catalogs, or section count.
+- Begin directly with the one core takeaway, ideally in the first sentence; remove repetitive throat-clearing and introductory filler.
+- Explain one central question in a coherent progression: problem → intuitive architecture/mental model → selective product evidence → consequences and constraints. Prefer 4–5 sections where possible.
+- Assume mainstream products are already known; do not write product introductions or complete inventories. Mention each only to demonstrate a *difference relevant to the thesis*.
+- Use ordinary Chinese, concrete cross-device scenarios, and short purposeful paragraphs. Keep architectural depth at the level needed for comprehension; explain mechanisms in natural language before introducing technical terms. One simple mobile-readable architecture diagram often beats a specification-style five-layer stack.
+- Human readability and insight are essential even in technical writing. Avoid both lyrical/personal essay filler **and** dry developer-document rhetoric. Keep facts, interpretation, and boundaries clear.
+- Editorial self-test: can an informed reader state the single thesis after the opening, follow why each section exists, and understand why the product comparisons matter? If not, simplify before publishing.
+
 ## Operating contract
 
 1. Confirm the article goal and audience from context. For traffic-focused writing, use an accurate curiosity-driven headline, opening tension, relatable scenario, concrete insight, practical payoff and share-worthy ending. No fabricated case studies, statistics, endorsements, or guaranteed virality.
