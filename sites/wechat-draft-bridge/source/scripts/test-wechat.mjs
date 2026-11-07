@@ -302,6 +302,8 @@ try {
     const created=await newTest("legal-001");assert.equal(created.readback_verified,true);
     const result=await core.deleteTestDraft("alice",{media_id:created.media_id,request_id:"delete-legal-001"});
     assert.equal(result.outcome,"confirmed_deleted");assert.equal(result.readback_verified,true);assert.equal(upstream.has(created.media_id),false);
+    const provenance=records.get(receipts).find(r=>r.kind==="test_draft_provenance"&&JSON.parse(r.result).media_id===created.media_id);
+    assert.equal(provenance.state,"deleted");assert.equal(JSON.parse(provenance.result).title,"【测试草稿·勿发布】legal-001");
     const before=deleteCount();assert.equal((await core.deleteTestDraft("alice",{media_id:created.media_id,request_id:"delete-legal-001"})).idempotent_replay,true);assert.equal(deleteCount(),before);
     assert.equal((await core.deleteTestDraft("alice",{media_id:created.media_id,request_id:"delete-legal-002"})).outcome,"already_deleted");assert.equal(deleteCount(),before);
   });

@@ -355,7 +355,9 @@ async function reconcileDelete(c:Connection, mediaId:string, receiptId:string, p
     if(lookup.kind==="absent") {
       const result={request_id:requestId,media_id:mediaId,deleted:true,outcome:sent?"confirmed_deleted":"confirmed_absent_after_unknown",readback_verified:true};
       await getDb().update(receipts).set({state:"complete",result:JSON.stringify(result)}).where(and(eq(receipts.id,receiptId),eq(receipts.state,"submitted")));
-      await getDb().update(receipts).set({state:"deleted",result:JSON.stringify({media_id:mediaId,delete_receipt_id:receiptId})}).where(and(eq(receipts.id,provenanceId),eq(receipts.state,"deleting")));
+      // Preserve the original provenance snapshot for future audit; the
+      // operation receipt records which deletion request confirmed absence.
+      await getDb().update(receipts).set({state:"deleted"}).where(and(eq(receipts.id,provenanceId),eq(receipts.state,"deleting")));
       return result;
     }
     return {request_id:requestId,media_id:mediaId,deleted:false,outcome:"unknown_or_still_present",retry_safe:false,message:"删除请求可能已到达微信，但目标仍可读取。禁止自动再次发送删除；请稍后使用同一 request_id 查询。"};
