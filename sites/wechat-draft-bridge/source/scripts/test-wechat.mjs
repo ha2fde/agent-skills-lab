@@ -208,7 +208,7 @@ try {
     const next = await (await rpc("after-error", "tools/call", { name: "wechat_list_images", arguments: {} })).json();
     assert.equal(next.id, "after-error"); assert.equal(next.result.isError, false);
     const status = await (await rpc(1, "initialize", { protocolVersion: "2026-07-28" })).json();
-    assert.equal(status.result.serverInfo.version, "1.2.0");
+    assert.equal(status.result.serverInfo.version, "1.2.1");
   });
   await test("oversized streamed MCP requests return a bounded JSON-RPC error", async () => {
     const response = await route.namespace.POST(new Request("https://mock.test/mcp", { method: "POST", body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { data: "A".repeat(512 * 1024) } }) }));
@@ -223,6 +223,8 @@ try {
     assert.deepEqual(tools.filter(t=>/delete/.test(t.name)).map(t=>t.name),["wechat_delete_test_draft"]);
     assert.ok(!tools.some(t => /publish|send/.test(t.name)));
     assert.deepEqual(tools.at(-1).inputSchema.required,["media_id","request_id"]);
+    assert.equal(tools.find(t=>t.name==="wechat_prepare_and_save_draft").inputSchema.properties.test_draft.type,"boolean");
+    assert.match(root.namespace.instructions,/只要求写作.*不自动写入/);
     for (const t of tools) assert.equal(t.inputSchema.type, "object");
   });
 

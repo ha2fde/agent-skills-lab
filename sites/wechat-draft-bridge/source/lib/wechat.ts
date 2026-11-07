@@ -38,7 +38,7 @@ export async function connectionStatus(userId: string) {
     route: c?.relayUrl ? "fixed_ip_relay" : "direct", relay_url: c?.relayUrl ?? "", has_app_secret: !!c?.secretCipher, has_relay_key: !!c?.relayKeyCipher,
     verified_at: c?.verifiedAt ?? null, last_error: c?.lastError ?? null, settings_url: SETTINGS_URL,
     capabilities: ["create_draft", "update_draft", "list_drafts", "get_draft", "upload_images", "prepare_and_save_draft", "delete_test_draft"],
-    service_version: "1.2.0", format_version: FORMAT_VERSION,
+    service_version: "1.2.1", format_version: FORMAT_VERSION,
     network_note: "直连托管服务不承诺固定出口 IP。若微信返回 40164，请配置固定公网 IP 的转发服务。",
   };
 }
