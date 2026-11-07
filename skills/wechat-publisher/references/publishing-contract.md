@@ -6,8 +6,8 @@ This is the canonical acceptance contract. A new conversation MUST load this fil
 The user's request to "write and save a WeChat article" means: editorial article + mobile-formatted HTML + approved cover image actually uploaded to WeChat + draft saved + readback verified. A generated picture or local JPEG alone is not a completed cover. A draft with a missing or recycled cover is NOT complete. Default is draft-only.
 
 ## Fixed design tokens
-- Chinese body: 18px, line-height 1.85–1.9; paragraphs margin-bottom 20–24px; restrained letter spacing.
-- Section headings: 23px, line-height >=1.5, margin-top 36–44px, margin-bottom 20–24px; use navy (#17283f or #18273e) and champagne gold (#c4a46a).
+- Default Chinese body: 18px, line-height 1.85–1.9; paragraph spacing 20–24px. An explicit per-article choice overrides these defaults within mobile-safe bounds.
+- Default section headings: 23px, line-height >=1.5, navy (#17283f) with restrained champagne gold (#c4a46a). A requested white/black or other coherent theme takes precedence.
 - Avoid dense left-border heading blocks, cramped colored text inside pictures/callouts, horizontal process chains, and long unbroken English/API/URL strings.
 - A 900×383 cover image is for the cover, not a substitute for mobile-friendly in-article layout.
 - In-body emphasis: ~1–2 gold/bold phrases per section. Keep readable contrast; do not bold whole paragraphs.
@@ -37,7 +37,7 @@ Report these separately: cover uploaded; body images uploaded (or none); draft s
 For a verified new regression: repair the actual draft first; then update this contract/runbook and incident log in GitHub and read back the committed content. Prompts are not a substitute for executable tooling.
 
 ## Content-rich visual rhythm (default since 2026-11-07)
-- Editorial pages should **not feel like uninterrupted white-background dark text**. Use designed hierarchy, purposeful contrast, warm paper/navy/champagne-gold accents, section rhythm and sparing quote/pull-quote panels. Keep enough uncluttered white space for mobile scanning; avoid bright backgrounds behind long paragraphs.
+- A white-background black-text design is valid when requested; use hierarchy and spacing so it reads well. Default editorial pages can avoid uninterrupted flat text. Use designed hierarchy, purposeful contrast, warm paper/navy/champagne-gold accents, section rhythm and sparing quote/pull-quote panels. Keep enough uncluttered white space for mobile scanning; avoid bright backgrounds behind long paragraphs.
 - **Mix authentic sourced photography and explanatory diagrams.** The former communicates real-world experience, challenge, stakes and consequences; the latter illustrates a thought structure, decision model or architecture. Each image must earn its place. Do not use stereotypical fantasy AI illustrations, photorealistic synthetic subjects disguised as real photos, or purposeless stock scenery. Verify rights and attribution for third-party photos.
 - When asked to shorten, keep the article's core thesis and every distinct section's point, remove duplicated sentences and filler. Do not silently rewrite approved prose for a purely visual change.
 - Existing cover and approved media remain untouched unless the user requests replacement. Update exact draft ID after fetching its latest content hash; never create an accidental second draft.

@@ -38,7 +38,7 @@ export async function connectionStatus(userId: string) {
     route: c?.relayUrl ? "fixed_ip_relay" : "direct", relay_url: c?.relayUrl ?? "", has_app_secret: !!c?.secretCipher, has_relay_key: !!c?.relayKeyCipher,
     verified_at: c?.verifiedAt ?? null, last_error: c?.lastError ?? null, settings_url: SETTINGS_URL,
     capabilities: ["create_draft", "update_draft", "list_drafts", "get_draft", "upload_images", "prepare_and_save_draft", "delete_test_draft"],
-    service_version: "1.2.1", format_version: FORMAT_VERSION,
+    service_version: "1.2.2", format_version: FORMAT_VERSION,
     network_note: "直连托管服务不承诺固定出口 IP。若微信返回 40164，请配置固定公网 IP 的转发服务。",
   };
 }
@@ -245,7 +245,7 @@ export async function prepareAndSaveDraft(userId: string, args: Record<string, u
   };
   validateSource(cover); bodyInputs.forEach(validateSource);
   // Validate all content before any upload. Placeholder URLs are validation-only.
-  const preview = prepareHtml(content, format, refs, new Map(bodyInputs.map(x=>[x.id,"https://mmbiz.qpic.cn/validation-only"])));
+  const preview = prepareHtml(content, format, refs, new Map(bodyInputs.map(x=>[x.id,"https://mmbiz.qpic.cn/validation-only"])), args.theme);
   validateArticle({ title, digest, author, content: preview, thumb_media_id: "validation-only", content_source_url: args.content_source_url });
   const id = await hash([c.userId, c.appId, requestId]), payloadHash = await hash(["prepare_and_save_draft", args]);
   const existing = await getDb().select().from(receipts).where(eq(receipts.id, id)).get();
@@ -269,7 +269,7 @@ export async function prepareAndSaveDraft(userId: string, args: Record<string, u
     const uploadedBody = [];
     for (const item of bodyInputs) uploadedBody.push({ id:item.id, ...await uploadImageTool(userId, { ...item, filename: item.filename ?? item.id+".jpg", purpose:"body" }) });
     stage = "format";
-    const html = prepareHtml(content, format, refs, new Map(uploadedBody.map(x=>[x.id, String(x.url)])));
+    const html = prepareHtml(content, format, refs, new Map(uploadedBody.map(x=>[x.id, String(x.url)])), args.theme);
     const article = validateArticle({ title, digest, author, content:html, thumb_media_id:uploadedCover.media_id, content_source_url:args.content_source_url });
     saved = { expected: article, assets: { cover:uploadedCover, body_images:uploadedBody }, format_version:FORMAT_VERSION, test_draft:testDraft };
     stage = "create";

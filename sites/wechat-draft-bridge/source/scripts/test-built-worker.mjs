@@ -37,6 +37,10 @@ try {
  const result=await rpc('wechat_prepare_and_save_draft',args);assert.equal(result.readback_verified,true,JSON.stringify(result));
  const before=calls.length;assert.deepEqual(await rpc('wechat_prepare_and_save_draft',args),result);assert.equal(calls.length,before);
  console.log('PASS built Worker end-to-end with real D1, durable idempotency, public URL fetch, inline Base64, formatting, upload and full readback');
+ const themed={...args,request_id:'built-worker-theme-001',title:'White background black text',theme:{background_color:'#ffffff',text_color:'#000000',heading_color:'#000000',font_family:'serif',body_size:19,heading_size:25,line_height:1.9}};
+ const themedDraft=await rpc('wechat_prepare_and_save_draft',themed);assert.equal(themedDraft.readback_verified,true,JSON.stringify(themedDraft));assert.equal(themedDraft.verification[0].checks.visual_style,true);
+ assert.match(upstream.get(themedDraft.media_id)[0].content,/background-color:#ffffff/);assert.match(upstream.get(themedDraft.media_id)[0].content,/color:#000000/);
+ console.log('PASS built Worker per-article theme and visual-style readback');
  const testArgs={...args,request_id:'built-worker-test-create-001',title:'【测试草稿·勿发布】Worker isolated deletion',test_draft:true};
  const testDraft=await rpc('wechat_prepare_and_save_draft',testArgs);assert.equal(testDraft.readback_verified,true);
  const delArgs={media_id:testDraft.media_id,request_id:'built-worker-test-delete-001'};

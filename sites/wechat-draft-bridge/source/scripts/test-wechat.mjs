@@ -208,7 +208,7 @@ try {
     const next = await (await rpc("after-error", "tools/call", { name: "wechat_list_images", arguments: {} })).json();
     assert.equal(next.id, "after-error"); assert.equal(next.result.isError, false);
     const status = await (await rpc(1, "initialize", { protocolVersion: "2026-07-28" })).json();
-    assert.equal(status.result.serverInfo.version, "1.2.1");
+    assert.equal(status.result.serverInfo.version, "1.2.2");
   });
   await test("oversized streamed MCP requests return a bounded JSON-RPC error", async () => {
     const response = await route.namespace.POST(new Request("https://mock.test/mcp", { method: "POST", body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { data: "A".repeat(512 * 1024) } }) }));
@@ -255,11 +255,27 @@ try {
     assert.throws(()=>fmt.prepareHtml("<p>[3]</p>","html",[{title:"来源",url:"https://example.com"}]),/编号/);
     assert.throws(()=>fmt.normalizeHtml('<img src="javascript:alert(1)">'),/链接协议/);
   });
+  await test("per-article white/black theme is retained and verified",async()=>{
+    const theme={background_color:"#ffffff",text_color:"#000000",heading_color:"#000000",accent_color:"#333333",font_family:"serif",body_size:19,heading_size:25,line_height:1.9};
+    const html=fmt.prepareHtml('<h2>标题</h2><p style="position:fixed">正文<strong>重点</strong></p>',"html",[],new Map(),theme);
+    assert.match(html,/background-color:#ffffff/);assert.match(html,/color:#000000/);assert.match(html,/font-family:Georgia/);assert.match(html,/font-size:19px/);assert.match(html,/font-size:25px/);assert.ok(!html.includes("position:fixed"));
+    const expected=validation.validateArticle({...article,content:html});
+    assert.equal(fmt.verifyArticle(expected,expected).verified,true);
+    const altered={...expected,content:html.replace("background-color:#ffffff","background-color:#17283f")};
+    const result=fmt.verifyArticle(expected,altered);assert.equal(result.verified,false);assert.equal(result.checks.visual_style,false);
+    assert.throws(()=>fmt.prepareHtml("<p>正文</p>","html",[],new Map(),{text_color:"red"}),/六位/);
+    assert.throws(()=>fmt.prepareHtml("<p>正文</p>","html",[],new Map(),{font_family:"url(evil)"}),/字体/);
+  });
   const prepareArgs={request_id:"prepared-success-001",title:"一键保存测试",digest:"测试摘要",content:'<h2>标题</h2><p>正文<strong>重点</strong>[1]</p>{{image:body1}}',cover:{image_base64:fixture.toString("base64")},body_images:[{id:"body1",image_base64:fixture.toString("base64")}],references:[{title:"参考",url:"https://example.com/"}]};
   await test("one-click uploads images, formats, saves, verifies and replays without side effects",async()=>{
     const result=await core.prepareAndSaveDraft("alice",prepareArgs); assert.equal(result.created,true);assert.equal(result.readback_verified,true);assert.equal(result.published,false);
     const before=calls.length; assert.deepEqual(await core.prepareAndSaveDraft("alice",prepareArgs),result);assert.equal(calls.length,before);
     await assert.rejects(()=>core.prepareAndSaveDraft("alice",{...prepareArgs,title:"different"}),/不同内容/);
+  });
+  await test("one-click custom theme survives create and readback",async()=>{
+    const args={...prepareArgs,request_id:"prepared-theme-001",title:"白底黑字主题测试",theme:{background_color:"#ffffff",text_color:"#000000",heading_color:"#000000",font_family:"serif",body_size:19,heading_size:25,line_height:1.9}};
+    const result=await core.prepareAndSaveDraft("alice",args);assert.equal(result.created,true);assert.equal(result.readback_verified,true);assert.equal(result.verification[0].checks.visual_style,true);
+    const actual=upstream.get(result.media_id)[0].content;assert.match(actual,/color:#000000/);assert.match(actual,/font-family:Georgia/);assert.match(actual,/font-size:25px/);
   });
   await test("lost one-click response is reconciled before any repeat add",async()=>{
     failure="lost-create-response";
