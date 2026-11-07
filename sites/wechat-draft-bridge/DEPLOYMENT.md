@@ -16,3 +16,7 @@ Pre-upgrade v3 saved-version ID: `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgv
 Pre-upgrade source SHA: `be1f5d2b65ffd22889d8bfeda43ca2a57cb2f322`. The v3 archive is already saved in Sites. If post-deploy critical checks fail, deploy this exact saved version to the same project; do not create a Site. DB schema is unchanged, so rollback requires no DB restore or credential change. Preserve newly added text receipt states: v3 will safely refuse replaying an unknown newer operation. Do not rotate WECHAT_CONFIG_ENCRYPTION_KEY.
 
 Rollback capability is established by the retained saved v3 archive; a live rollback/redeployment drill has not been performed unless explicitly recorded in HANDOFF.
+
+## 当前 v7 / MCP 1.2.0
+
+原项目原地部署：源代码 `e799710058a3c0a29f3b789f53a4e06b59abeb72`；保存版本 `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_3216e35964a88191a1bdace0164f14a2`；部署 `appgdep_6aee74c2a5488191a759944bed47978a` succeeded。D1 结构与线上密钥未变。先前短暂部署的 v6 已被 v7 覆盖，v7 修正了删除完成时保留原始来源快照。修改前 GitHub 备份分支 `backup/wechat-draft-bridge-v5-before-safe-delete-20261107`。如遇严重回归，可将原项目回滚到 v5 保存版本 `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_dba9b4f7d37481919c66efa32ca5c531`；不得新建项目、改密钥或删除 D1。回滚演练尚未执行。

@@ -1,34 +1,51 @@
 {
   "project_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82",
-  "site_version": 5,
-  "service_version": "1.1.1",
-  "source_commit": "d09939e0807c703373730dda539563f32224e74e",
-  "github_source_commit": "e3454cafab386712efea4fa68d7eae65c2d15586",
+  "site_version": 7,
+  "service_version": "1.2.0",
+  "source_commit": "e799710058a3c0a29f3b789f53a4e06b59abeb72",
+  "github_source_commit": "f381148ca3178f4689fca195db0e9c99fe88fa49",
   "deployment": {
-    "id": "appgdep_6aee6c69beac819193d2148eec7ea535",
+    "id": "appgdep_6aee74c2a5488191a759944bed47978a",
     "status": "succeeded",
-    "version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_dba9b4f7d37481919c66efa32ca5c531",
+    "version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_3216e35964a88191a1bdace0164f14a2",
     "environment_revision": 1,
-    "timestamp": "2026-11-07T00:10:26.783982+00:00"
+    "has_mcp": true,
+    "timestamp": "2026-11-07T00:46:04.345806+00:00"
   },
   "checks": {
-    "behavior": 27,
+    "behavior": 37,
     "typescript": true,
     "build": true,
     "built_worker": true,
+    "worker_request": true,
     "github_actions": {
-      "run_id": 42316543293,
+      "run_id": 42320089868,
       "conclusion": "success"
     },
-    "live_image_base64": true,
-    "live_image_url": true,
-    "live_test_draft_saved": true,
-    "live_test_draft_readback_verified": true,
-    "same_update_id_replay": true,
-    "clickable_links": false,
-    "high_level_live": false,
-    "fresh_chat": false,
-    "phone_preview": false
+    "live_connection_status_service_version": "1.2.0",
+    "live_connection_status_delete_capability": true,
+    "delete_tool_in_local_worker_list": true,
+    "delete_tool_in_current_plugin_registry": false,
+    "delete_tool_in_fresh_chat": "pending",
+    "live_delete_called": false,
+    "legacy_drafts_provenance": false,
+    "existing_nine_compatible": true,
+    "pre_existing_drafts_deleted": false
   },
-  "privacy": "No credentials, runtime tokens, account IDs, account image URLs or draft IDs included."
+  "privacy": "No credentials, runtime tokens, account IDs, account image URLs or draft IDs included.",
+  "previous_release": {
+    "site_version": 5,
+    "service_version": "1.1.1",
+    "source_commit": "d09939e0807c703373730dda539563f32224e74e",
+    "deployment": {
+      "id": "appgdep_6aee6c69beac819193d2148eec7ea535",
+      "status": "succeeded",
+      "version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_dba9b4f7d37481919c66efa32ca5c531",
+      "environment_revision": 1,
+      "timestamp": "2026-11-07T00:10:26.783982+00:00"
+    }
+  },
+  "backup_branch": "backup/wechat-draft-bridge-v5-before-safe-delete-20261107",
+  "rollback_saved_version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_dba9b4f7d37481919c66efa32ca5c531",
+  "note": "v6 initially deployed and immediately superseded by v7 after preserving the original provenance snapshot; v7 is current. No live draft was deleted."
 }
