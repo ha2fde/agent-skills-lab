@@ -12,3 +12,5 @@ ChatGPT canonical Site plugin → authenticated stateless POST /mcp → tool rou
 No logs contain uploaded bytes, Base64, article HTML, account credentials or signed URL query strings. Public backup contains only synthetic test images. Secrets, production DB and temporary Sites credentials are intentionally excluded; this is a source backup, not a complete data disaster-recovery backup.
 
 Remaining bounds: no animation flattening, input cap 4M pixels, bounded reconciliation latest 200 drafts, DNS preflight is separate from fetch resolution, no browser-driven actual WeChat phone preview or autonomous new ChatGPT conversation creation.
+
+Actual integration note: WeChat may rewrite img src to data-src and CDN rendition /0 to /640; comparison canonicalizes only the known qpic identity. External anchors were stripped by the actual account, so their clickable behavior is not verified. Plain-text reference destinations are retained, and missing requested anchors never count as a successful readback.

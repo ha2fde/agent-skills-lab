@@ -1,0 +1,34 @@
+{
+  "project_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82",
+  "site_version": 5,
+  "service_version": "1.1.1",
+  "source_commit": "d09939e0807c703373730dda539563f32224e74e",
+  "github_source_commit": "e3454cafab386712efea4fa68d7eae65c2d15586",
+  "deployment": {
+    "id": "appgdep_6aee6c69beac819193d2148eec7ea535",
+    "status": "succeeded",
+    "version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_dba9b4f7d37481919c66efa32ca5c531",
+    "environment_revision": 1,
+    "timestamp": "2026-11-07T00:10:26.783982+00:00"
+  },
+  "checks": {
+    "behavior": 27,
+    "typescript": true,
+    "build": true,
+    "built_worker": true,
+    "github_actions": {
+      "run_id": 42316543293,
+      "conclusion": "success"
+    },
+    "live_image_base64": true,
+    "live_image_url": true,
+    "live_test_draft_saved": true,
+    "live_test_draft_readback_verified": true,
+    "same_update_id_replay": true,
+    "clickable_links": false,
+    "high_level_live": false,
+    "fresh_chat": false,
+    "phone_preview": false
+  },
+  "privacy": "No credentials, runtime tokens, account IDs, account image URLs or draft IDs included."
+}
