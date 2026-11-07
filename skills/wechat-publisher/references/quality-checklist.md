@@ -29,3 +29,9 @@
 - [ ] Readback matches title, content, emphasis, digest and `thumb_media_id`.
 - [ ] Clearly distinguish draft success from publication.
 - [ ] Final publication only on explicit instruction.
+
+## Trigger and connected-tool checks
+- [ ] Clarify whether the request explicitly authorizes saving a draft; writing alone does not.
+- [ ] Confirm current callable schema rather than inferring from service version/capabilities.
+- [ ] For a new synthetic test, mark test_draft=true only if callable; exact-ID cleanup only with trusted provenance. Legacy drafts are excluded.
+- [ ] When saving was requested, let the user review in the draft box; report status succinctly, not the whole article in chat.

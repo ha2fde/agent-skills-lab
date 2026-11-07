@@ -1,17 +1,19 @@
 ---
 name: wechat-publisher
-description: Use for any request mentioning 微信公众号、公众号文章、公众号草稿、公众号配图、封面、排版、草稿箱 or WeChat Official Account; write, format, upload images, save drafts and independently verify with the connected wechat_prepare_and_save_draft MCP tool.
+description: 自动匹配微信公众号写作、配图、封面、排版、修改草稿、保存到草稿箱、读回验收和安全清理测试草稿等自然语言要求，包括“帮我写公众号”“写一篇公众号文章，配图并保存到草稿箱”与语义等价表达。Use for WeChat Official Account articles and drafts. Only save when explicitly requested; never formally publish without separate authorization.
 ---
 
 # WeChat Publisher
 
 Use when the user requests a 微信公众号 article, rewrite, cover, image, draft, or publishing workflow. The user controls final publication; default to **draft only**.
 
-## Default execution route — live MCP 1.1.1 (verified 2026-11-07)
+## 自动触发与原插件路由（服务端 MCP 1.2.0，工具目录待同步）
 
 **Trigger phrases:** “写一篇公众号文章”, “帮我写公众号”, “生成公众号封面/配图”, “排版公众号”, “保存到公众号草稿箱”, “修改公众号草稿”, “公众号文章配图并保存”, “公众号文章发布前准备”, “WeChat Official Account article/draft”. Treat semantic equivalents the same, not only exact phrases.
 
-**Tool/schema vs Skill:** This GitHub Skill supplies editorial rules and acceptance checks. The installed 公众号草稿助手 MCP supplies callable tool schemas and server-side workflow. Merely putting this file on GitHub does NOT force automatic Skill loading in every ChatGPT conversation; an installed/connected MCP can still be discovered directly. The current deployed v5 / MCP 1.1.1 already advertises `wechat_prepare_and_save_draft` in its tool catalog and server instructions. Do not claim a separate chat has auto-read GitHub unless it actually fetched it. A conversation already writing an article may need a fresh instruction to re-check the latest tool catalog.
+**Tool/schema vs Skill:** 已安装的个人 `wechat-publisher` 是自然语言自动触发入口，并读取本 GitHub 规范；GitHub 文件自身不能自动安装。原 Sites 项目 v7 / MCP 1.2.0 的 `wechat_connection_status` 已显示新能力，但独立新会话仍只暴露九个旧工具，无法传 `test_draft` 或调用 `wechat_delete_test_draft`。以当前会话真正可调用的 schema 为准；不能把服务端能力声明当成插件目录同步成功。
+
+**Explicit tool mapping:** `wechat_connection_status` checks the account; `wechat_prepare_and_save_draft` creates only when saving was requested; `wechat_get_draft` reads back or prepares an update; `wechat_update_draft` modifies the exact existing draft; `wechat_delete_test_draft` is restricted to eligible, newly marked test drafts and may be missing from a stale ChatGPT tool directory. For a new synthetic test, use `test_draft=true` only if the high-level tool's *callable schema* includes it and the title starts `【测试草稿·勿发布】`; after acceptance, delete only its precise ID. The three legacy drafts are ineligible.
 
 **Decision policy:**
 - User asks for **ideas, research, outline, or article text only**: compose text; do not create a WeChat draft without authorization.
@@ -27,9 +29,9 @@ Use when the user requests a 微信公众号 article, rewrite, cover, image, dra
 
 - Temporary drafts created **by the assistant solely for MCP regression/acceptance testing** must be deleted promptly **after verification**, not left in the user's real WeChat drafts. This cleanup authorization does **not** extend to real articles, drafts the user is writing, previously existing drafts, or any other draft whose provenance is uncertain.
 - Before deleting, require positive identification: exact recorded `media_id` plus a readback matching test-only title and purpose. Never delete by loose prefix, date, position, or a broad “测试” title filter. List drafts again after deletion and confirm unrelated articles remain unchanged.
-- If the connected WeChat plugin does **not** expose an authorized draft-deletion tool, **do not claim deletion** or seek secret keys. Report that cleanup is blocked and arrange a safe same-project MCP enhancement or use the existing user-authorized official UI. Do not silently retain test drafts without reporting them. Never repurpose `wechat_update_draft` as deletion.
+- If the connected plugin schema lacks `wechat_delete_test_draft`, **do not claim deletion** or seek secret keys. The v7 server supports it, but new-chat tool registration is still stale; diagnose directory synchronization before any synthetic delete acceptance. Do not silently retain test drafts without reporting them. Do not silently retain test drafts without reporting them. Never repurpose `wechat_update_draft` as deletion.
 - Current confirmed cleanup targets from testing only (not an authorization to delete any similarly named draft): `z-_mumxif9IVp3_gkx_RXJGW_-OYBrKi5TaNyLT5PDIl74zkZhRNS2AIb5PaIzx1` (MCP 1.1.1 手机排版回归), `z-_mumxif9IVp3_gkx_RXH__SjuAKGUyGoCOFfgkV8MExXmnljgEjn_aREYHYEDo` (新会话一键流程验收), `z-_mumxif9IVp3_gkx_RXOpUEjgw4pKbUcklp6LdPkGiHAfeF1dHaFTnosj_D6mR` (参考链接与正文图片). Read each again before any delete. This list may grow only from individually verified test-draft creation records.
-- Whenever adding a deletion operation to the MCP service, implement exact-ID deletion only, verify provenance at readback, give it a narrowly-scoped tool name (e.g. `wechat_delete_test_draft`), retain audit receipts, and ensure deletion happens only with direct authorization. Update deployed service, regression tests and HANDOFF. Never claim it is available merely because source was modified.
+- The server-side `wechat_delete_test_draft` exists in v7 source and deployment, but only a truly callable tool schema permits use. It requires exact media_id, stable request_id, server-owned test provenance, unchanged article and a post-delete readback. Historical test drafts lack trusted provenance; do not backfill or bypass it.
 
 ## Non-negotiable acceptance gate
 
@@ -37,7 +39,7 @@ For any new article, follow [Publishing contract](references/publishing-contract
 
 ## Mandatory new-conversation bootstrap
 
-When a user asks for a new WeChat article or draft, **before drafting**, retrieve the latest version of this GitHub SKILL.md and its reference files, especially the mandatory publishing contract and image-upload runbook (or use a verified installed copy). Treat these as the user's canonical preferences. Never substitute a stale chat summary or a remembered older version. Confirm the currently connected WeChat MCP input schema before any image upload. If GitHub access is unavailable, state that the canonical skill could not be loaded and use the known defaults below; do not claim you loaded it. A GitHub repository cannot force automatic loading in arbitrary ChatGPT conversations; a new chat must explicitly request the bootstrap or have a compatible skill integration.
+When a user asks for a new WeChat article or draft, the installed personal `wechat-publisher` should trigger from natural language and retrieve this GitHub SKILL.md plus the mandatory publishing contract and image-upload runbook before drafting. Treat these as the user's canonical preferences. Never substitute a stale chat summary or a remembered older version. Confirm the currently connected WeChat MCP input schema before any image upload. If GitHub access is unavailable, state that the canonical skill could not be loaded and use the known defaults below; do not claim you loaded it. GitHub alone cannot force loading, but the installed personal Skill supplies a compatible trigger; verify its presence in a fresh conversation rather than inferring it from this file.
 
 **Known-good article baseline:** The 2026-11-06 GPT-6 Cyber draft was successfully updated with 18px body, 23px headings, navy/champagne-gold styling, 1.85 line-height, generous paragraph spacing, bold key statements, prominent navy hero and concluding highlight, mobile-safe references, and readback verification. Use this as a styling reference, not as content to copy. Cover upload succeeded using an actual 900×383 JPEG file (~71KB) encoded as Base64, then a new WeChat media_id was saved into the draft and read back.
 
@@ -90,7 +92,7 @@ For public-facing technical WeChat essays, **technical does not mean engineering
 
 ## Local deterministic preparation
 
-For local image generation/optimization, [scripts/prepare_cover.py](scripts/prepare_cover.py) can prepare image bytes (requires Pillow). **Current live MCP 1.1.1 now provides a tested high-level one-click draft workflow, including image retrieval/conversion and readback.** The old Files Library Base64 bridge is a fallback for inaccessible image bytes, not a mandatory step. Cross-chat MCP discovery was actually tested on 2026-11-07; automatic loading of this separate GitHub Skill is not established.
+For local image generation/optimization, [scripts/prepare_cover.py](scripts/prepare_cover.py) can prepare image bytes (requires Pillow). **Current live MCP 1.2.0 provides the high-level one-click draft workflow, including image retrieval/conversion and readback; new deletion schema discovery remains unverified.** The old Files Library Base64 bridge is a fallback for inaccessible image bytes, not a mandatory step. Cross-chat MCP discovery was actually tested on 2026-11-07; automatic loading of this separate GitHub Skill is not established.
 
 ## References
 - [Mandatory publishing contract](references/publishing-contract.md)
@@ -133,5 +135,5 @@ For future WeChat articles, **do not default to a bland white background and uni
 
 - For public WeChat articles derived from private conversations, transform the idea into a **general market need / product landscape**. Do not use first-person anecdotes, locations, employers, holdings, brokerage accounts, travel details, or identifying clues unless explicitly authorized. Generalize scenarios without suggesting the author personally experienced them.
 - Prefer **short, visual-first** public-facing copy. One clear thesis, a compact use-case comparison, existing market offerings, realistic limits; avoid long multi-section essays, repeated examples, and verbose introductions. Illustrations should explain the idea, not decorate it.
-- **Draft-first review preference:** when the user asks to write/rewrite a WeChat article in the context of the established publisher workflow, save it to the connected WeChat draft box for their own review; do not paste the full article into chat or require inline review. Never formally publish without explicit authorization. Report the draft status and any failed checks succinctly.
+- **Draft-first review preference within authorized saving:** when the user explicitly requests saving a WeChat article, place it in the connected draft box for their own review and avoid pasting the full article into chat. A request only to write or rewrite text is not authorization to create a draft. Never formally publish without separate explicit authorization; report draft status and failed checks succinctly.
 - Keep these reusable preferences public and generic; do not store the private triggering anecdote or user-specific financial details in this repository.

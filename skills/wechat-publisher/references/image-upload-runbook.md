@@ -1,9 +1,9 @@
-# Proven WeChat cover upload: image bytes bridge (2026-11-06)
+# WeChat image upload: current route and legacy fallback
 
 ## Why generic prompts fail
-A local image path, generated-image identifier, and Google Drive URL are not automatically valid `image_url` values for the hosted WeChat MCP. The hosted connector accepts raw Base64 for images <=128 KiB, but the tool runner cannot directly read local files. Use the Files Library as a **temporary bridge**, then remove the temporary text file. Do not expose raw Base64 in chat.
+A local image path, generated-image identifier, and Google Drive URL are not automatically valid `image_url` values for the hosted WeChat MCP. The hosted connector accepts direct public HTTPS image URLs and raw Base64 <=128 KiB. Prefer the high-level draft tool with a verified URL or real image bytes; if a source is only in Library and cannot be passed directly, use the temporary Files Library byte bridge below, then remove the temporary text file. Do not expose raw Base64 in chat.
 
-## Exact validated path
+## Legacy Base64 bridge only when direct URL/bytes are unavailable
 1. Locate the *actual approved* cover in the current conversation or Library. If in Library, call `files__list` to get its real `file_id`, then `files__materialize` to copy raw bytes to the container.
 2. Inspect with Pillow: target cover 900×383, RGB, baseline JPEG, <=128 KiB. If necessary, resize and save with `progressive=False`, optimizing quality until small enough. Never replace the user's approved image with unrelated stock art.
 3. In the container, encode bytes to a UTF-8 ASCII text file: `base64.b64encode(open(image_path,'rb').read()).decode()`. Do not print the Base64.
@@ -19,4 +19,4 @@ A local image path, generated-image identifier, and Google Drive URL are not aut
 - Important failure: attempting `files__read` using the new raw `file_...` ID returned only a visibility warning; passing that error text as Base64 caused an invalid Base64 error. **Always obtain and use the Library citation reference first.**
 
 ## Boundaries
-This is a proven workflow, not an automatically installed software extension. Different ChatGPT conversations must explicitly load this runbook unless a compatible Skill integration is installed. No automatic cross-chat tool execution is guaranteed. Mobile load speed must be verified on the phone separately.
+This is a proven workflow, not an automatically installed software extension. The personal `wechat-publisher` Skill is now installed as a natural-language entry point; verify it triggers in a fresh chat. GitHub content alone does not auto-load. No automatic cross-chat tool execution is guaranteed. Mobile load speed must be verified on the phone separately.

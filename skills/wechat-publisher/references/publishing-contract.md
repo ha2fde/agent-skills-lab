@@ -24,7 +24,7 @@ The user's request to "write and save a WeChat article" means: editorial article
 
 ## Image upload — hard stop gate
 1. Obtain original image bytes. Optimize cover to 900×383 RGB baseline JPEG, <=128KiB for the hosted Base64 path.
-2. Use the exact verified Library Base64 bridge in image-upload-runbook.md. Check current connector schema; do not blindly use Google Drive URLs, fabricated ChatGPT URLs, image IDs or inaccessible local paths as image_url.
+2. Prefer the deployed high-level MCP with a verified direct HTTPS image URL or real Base64 bytes <=128 KiB. Use the Library Base64 bridge only when source bytes cannot otherwise reach the server. Check the callable connector schema; do not use sharing pages, fabricated URLs, image IDs or local paths as image_url.
 3. Verify the actual uploaded cover media_id, use it as thumb_media_id. Body illustrations, when present, require their own uploaded WeChat URLs.
 4. Create/update draft only after image gate succeeds. Read back and verify title, body, thumb, references and highlights.
 5. If image upload fails, troubleshoot and retry with a valid transport; never silently fall back to a different cover, publish text-only, or declare success.
@@ -49,3 +49,6 @@ For a verified new regression: repair the actual draft first; then update this c
 - Limit illustrated essays to **one strong explanatory diagram and one grounded documentary photo by default**, unless extra images are independently necessary. No redundant athletic, scenic, or quotation-card fillers. This is not a numeric hard cap for technical tutorials that legitimately need more diagrams.
 - Never solve a complaint about flat white/dark typography by adding unrelated pictures. First establish which background/text CSS properties survive current WeChat server/editor sanitization. If not retained, mark typography/background task incomplete and address the rendering pipeline; no success claim based on tool's generic verification alone.
 - For the real-world essay, the selected cliff-climber photo and early conceptual diagram are the user's preferred pair. Preserve the existing cover and avoid duplicating drafts.
+
+## Intent and test-cleanup boundary
+Writing, illustration or layout alone does not authorize creating a WeChat draft. When the user explicitly requests saving, deliver it to their draft box and let them review there instead of pasting a long full article in chat. New synthetic test drafts may use test_draft=true only when that parameter is actually callable, and must be removed by exact ID through the guarded delete tool after verification. Historical drafts lack trusted provenance and cannot pass that automatic gate. Source code and connection_status capabilities do not prove the ChatGPT tool catalog refreshed. Never formally publish without separate authorization.

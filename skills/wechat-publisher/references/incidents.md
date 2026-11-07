@@ -13,3 +13,6 @@
 **Other known issues:** Long MCP request/code blocks wrapped incorrectly on mobile despite appearing correct on PC; reference numbering was incomplete. Both require explicit mobile QA before delivery.
 
 **Safety:** Never put AppSecret, AppID, personal account details or private source material in public repository content. No auto-publication.
+
+## 2026-11-07: plugin tool registry lag
+Sites v7 / MCP 1.2.0 ran and advertised delete_test_draft, yet a separate fresh ChatGPT conversation still exposed only nine old schemas and rejected test_draft before sending. Separate runtime capabilities, plugin tool registration, and an installed Skill trigger in diagnosis. Do not create new unmarked test drafts while deletion is unavailable.

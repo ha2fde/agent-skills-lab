@@ -1,6 +1,6 @@
 # WeChat MCP upgrade: implementation and release plan
 
-Status: **source access pending**. Existing WeChat connector is functional, but current tools do not expose the Sites project's editable source or deploy operation. This is a specification, NOT evidence that the live MCP was upgraded.
+Status: **original Sites project deployed at v7 / MCP 1.2.0**. Its source, CI and rollback are recorded in `sites/wechat-draft-bridge/HANDOFF.md` and `RELEASE-VERIFICATION.json`. This older plan is retained as historical design context. Remaining blocker: fresh ChatGPT conversations still receive nine old tool schemas even though the service declares the tenth deletion tool and `test_draft`.
 
 ## Non-negotiables
 - Update the existing Sites-backed WeChat MCP, preserving project identity, plugin/app ID, hosting, secrets, account connection and existing drafts.
@@ -50,4 +50,4 @@ Status: **source access pending**. Existing WeChat connector is functional, but 
 ## Current verified work
 - Skill and publishing contract updated in GitHub.
 - Local cover preprocessor at `skills/wechat-publisher/scripts/prepare_cover.py` created.
-- Actual live Sites MCP source and deployment not yet accessible in current session; no server-side upgrade has been performed.
+- Source and deployment are accessible and v7 succeeded. The independent fresh-chat plugin catalog remains stale; do not claim deletion is callable until the tenth tool and test_draft appear in the actual callable schema.
