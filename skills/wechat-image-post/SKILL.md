@@ -33,7 +33,7 @@ On a new image-post request, fetch this exact GitHub file and both references be
 - Incorrect technical units, labels, or numbers.
 - Extraneous conversational/process details such as internal verification commands, unless explicitly requested for the public post.
 
-Read [design and QA](references/design-and-qa.md) and [approved case and failure lessons](references/ascend-case.md).
+Read [design and QA](references/design-and-qa.md).
 
 
 ## Topic-neutral publishing and privacy rules
