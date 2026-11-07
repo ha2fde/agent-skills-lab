@@ -1,28 +1,28 @@
 {
   "project_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82",
-  "site_version": 8,
-  "service_version": "1.2.1",
-  "source_commit": "cdb2d92a6fdf9cfd78f97dcb6b522fb7a94a6a70",
-  "github_source_commit": "3d62ff47c86f94a0350ee3319c7ebbff2d8a9901",
+  "site_version": 9,
+  "service_version": "1.2.2",
+  "source_commit": "2f584bc149fac943fe499d0311d715d2ae0aa9cd",
+  "github_source_commit": "182f4f3648df2831304ed36655e56da146d8bd90",
   "deployment": {
-    "id": "appgdep_6aeeb3286f7c81919f5ce6b14a0d3be4",
+    "id": "appgdep_6aeedbee7b288191b75b1d6c10037137",
     "status": "succeeded",
-    "version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_651966a306ac8191ac84b3fc044795e9",
+    "version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_b5a45819db48819183c57cba265d02ea",
     "environment_revision": 1,
     "has_mcp": true,
-    "timestamp": "2026-11-07T05:12:16.498222+00:00"
+    "timestamp": "2026-11-07T08:06:15.105680+00:00"
   },
   "checks": {
-    "behavior": 37,
+    "behavior": 39,
     "typescript": true,
     "build": true,
     "built_worker": true,
     "worker_request": true,
     "github_actions": {
-      "run_id": 42341579992,
+      "run_id": 42353921098,
       "conclusion": "success"
     },
-    "live_connection_status_service_version": "1.2.1",
+    "live_connection_status_service_version": "1.2.2",
     "live_connection_status_delete_capability": true,
     "delete_tool_in_local_worker_list": true,
     "delete_tool_in_current_plugin_registry": true,
@@ -32,26 +32,31 @@
     "existing_nine_compatible": true,
     "pre_existing_drafts_deleted": false,
     "test_draft_in_current_plugin_registry": true,
-    "skill_implicit_trigger_in_fresh_chat": "pending independent session"
+    "skill_implicit_trigger_in_fresh_chat": "pending independent session",
+    "theme_in_local_worker_list": true,
+    "theme_in_current_plugin_registry": false,
+    "theme_in_fresh_chat": "pending",
+    "real_wechat_theme_readback": "not tested"
   },
   "privacy": "No credentials, runtime tokens, account IDs, account image URLs or draft IDs included.",
   "previous_release": {
-    "site_version": 7,
-    "service_version": "1.2.0",
-    "source_commit": "e799710058a3c0a29f3b789f53a4e06b59abeb72",
-    "github_source_commit": "f381148ca3178f4689fca195db0e9c99fe88fa49",
+    "site_version": 8,
+    "service_version": "1.2.1",
+    "source_commit": "cdb2d92a6fdf9cfd78f97dcb6b522fb7a94a6a70",
+    "github_source_commit": "3d62ff47c86f94a0350ee3319c7ebbff2d8a9901",
     "deployment": {
-      "id": "appgdep_6aee74c2a5488191a759944bed47978a",
+      "id": "appgdep_6aeeb3286f7c81919f5ce6b14a0d3be4",
       "status": "succeeded",
-      "version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_3216e35964a88191a1bdace0164f14a2",
+      "version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_651966a306ac8191ac84b3fc044795e9",
       "environment_revision": 1,
       "has_mcp": true,
-      "timestamp": "2026-11-07T00:46:04.345806+00:00"
+      "timestamp": "2026-11-07T05:12:16.498222+00:00"
     }
   },
   "backup_branch": "backup/wechat-draft-bridge-v5-before-safe-delete-20261107",
-  "rollback_saved_version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_3216e35964a88191a1bdace0164f14a2",
-  "note": "v8 refreshed the existing plugin catalog in this session without draft mutations. Independent new-conversation trigger still pending.",
+  "rollback_saved_version_id": "appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_651966a306ac8191ac84b3fc044795e9",
+  "note": "v9 deploy succeeded. Current plugin tool schema is stale without theme immediately after deploy; no real draft mutation for this change.",
   "skill_github_commit": "a8def29fc5d4b2a3fa36d0edbabc3b53f25b13bc",
-  "personal_skill_remote_commit": "63f68d2"
+  "personal_skill_remote_commit": "5d48f07",
+  "format_version": "mobile-theme-v2"
 }

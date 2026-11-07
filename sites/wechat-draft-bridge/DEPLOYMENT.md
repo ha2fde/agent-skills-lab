@@ -20,3 +20,7 @@ Rollback capability is established by the retained saved v3 archive; a live roll
 ## 当前 v7 / MCP 1.2.0
 
 原项目原地部署：源代码 `e799710058a3c0a29f3b789f53a4e06b59abeb72`；保存版本 `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_3216e35964a88191a1bdace0164f14a2`；部署 `appgdep_6aee74c2a5488191a759944bed47978a` succeeded。D1 结构与线上密钥未变。先前短暂部署的 v6 已被 v7 覆盖，v7 修正了删除完成时保留原始来源快照。修改前 GitHub 备份分支 `backup/wechat-draft-bridge-v5-before-safe-delete-20261107`。如遇严重回归，可将原项目回滚到 v5 保存版本 `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_dba9b4f7d37481919c66efa32ca5c531`；不得新建项目、改密钥或删除 D1。回滚演练尚未执行。
+
+## Current v9 / MCP 1.2.2 — article theme
+
+Source `2f584bc149fac943fe499d0311d715d2ae0aa9cd`; saved version `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_b5a45819db48819183c57cba265d02ea`; deployment `appgdep_6aeedbee7b288191b75b1d6c10037137` succeeded. `theme` is optional on the high-level create path and does not change existing low-level signatures, secrets or D1 schema. To roll back, redeploy v8 saved version `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_651966a306ac8191ac84b3fc044795e9` on the same project. Recheck the live callable tool schema after a plugin catalog refresh; do not infer catalog sync from the connection status. For a live style smoke test, only create a newly marked synthetic test draft, verify `visual_style` by independent readback and delete its exact ID with the guarded test tool. Never use historical drafts as test inputs.
