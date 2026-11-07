@@ -35,11 +35,11 @@ On a new image-post request, fetch this exact GitHub file and both references be
 
 Read [design and QA](references/design-and-qa.md) and [approved case and failure lessons](references/ascend-case.md).
 
-## Lifestyle / visual-impact image-post lessons (cycling series, 2026-11-07)
-- Keep a **single coherent visual identity** across all cards (lighting, color grade, editorial styling), but use distinct framing and subjects to match each card's message. For cycling: overall fitted sportswear; expressive face and mirrored sports eyewear; athletic legs and healthy strength; café cycling friends **actively photographing each other** with a compact premium fixed-lens camera (Leica Q-like, not bulky DSLR).
-- Preserve user-approved visual intensity: dynamic editorial composition, vivid contrast, expressive poses, distinctive accessories, and clear subject focus. Avoid flattening a compelling earlier concept into generic bland stock photography during revisions.
-- An attractive adult subject and tasteful fitted sportswear are acceptable; focus on fitness, fashion, and social interaction rather than intrusive body-part-only crops.
-- **Content lock:** When user says "use the earlier impactful images", first retrieve and inspect the approved assets, not silently replace with new unrelated search photos. Preserve the selected aesthetic; tell the truth if originals are unavailable or only cropped derivatives remain.
-- **No process leakage:** A user's real-world sighting at a café is private creative context, not publishable copy by default. A single unified caption may mention coffee culture generally, but not claim the author personally encountered anyone.
-- **Final acceptance matrix:** requested N == generated standalone N == delivered separate N; each actual 3:4 (prefer 1080×1440); each different focus; one common caption; style continuity; no accidental collage; truthful provenance and dimensions. Failure on any item means not complete.
-- See [cycling regression case](references/cycling-case.md).
+
+## Topic-neutral publishing and privacy rules
+- This public Skill is a **formatting and execution contract only**. Never archive a user's specific post idea, personal experience, sensitive creative direction, subject attributes, example caption, generated image, or unpublished content here. Keep each post's content scoped to its conversation or explicitly chosen private destination.
+- For all genres (technical diagrams, explainers, lifestyle, travel), choose content-specific visual composition while retaining the same delivery rules: N standalone images, 3:4 portrait by default, mobile-readable typography, one shared title/caption, consistent styling within each series, no unrequested collage.
+- Images should prioritize readable visual hierarchy: short prominent heading, minimal supporting labels, adequate margins and safe zones, no clipped text, no illegible tiny type. For technical diagrams, accurate terms, units, arrows and topology are more important than decoration. For photography-led posts, image prominence and visual clarity matter more than text density.
+- Revision rule: preserve user-approved content and aesthetics; change only requested properties. Do not introduce content from a different post or carry over a previous post's theme, tone, models or visuals.
+- Generic process failures may be recorded without revealing the subject or personal context. Public commit messages and references must remain topic-neutral.
+- Git history retains previous commits even after a file is deleted or rewritten. Deleting the current file is **not** guaranteed erasure from history; consider history rewriting only after separately assessing the impact on collaborators, forks and existing links.
