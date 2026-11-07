@@ -127,3 +127,11 @@ For future WeChat articles, **do not default to a bland white background and uni
 - **No ornamental images in lieu of typography.** Quote-card screenshots are not a substitute for solving text-background design. Make backgrounds, type color and hierarchy visually distinct only when they are actually supported and verified on the WeChat side. If the platform sanitizer strips CSS, say the background request is **not solved**. Do not declare it fixed because the save call succeeded or because extra images were inserted.
 - **Platform limitation revalidated:** The WeChat draft service accepted added CSS `background`, `padding`, and gold emphasis in an update; independent `wechat_get_draft` removed the background and added text-color declarations. Thus a plain white canvas remains; it needs a *separate renderer/service fix and real readback or phone verification*, not another decorative card.
 - After updates inspect image count and order, original cover ID, title, complete text/chapters and persisted background/text style. Report deficiencies explicitly.
+
+
+## Market-facing editorial and draft-first review (2026-11-07)
+
+- For public WeChat articles derived from private conversations, transform the idea into a **general market need / product landscape**. Do not use first-person anecdotes, locations, employers, holdings, brokerage accounts, travel details, or identifying clues unless explicitly authorized. Generalize scenarios without suggesting the author personally experienced them.
+- Prefer **short, visual-first** public-facing copy. One clear thesis, a compact use-case comparison, existing market offerings, realistic limits; avoid long multi-section essays, repeated examples, and verbose introductions. Illustrations should explain the idea, not decorate it.
+- **Draft-first review preference:** when the user asks to write/rewrite a WeChat article in the context of the established publisher workflow, save it to the connected WeChat draft box for their own review; do not paste the full article into chat or require inline review. Never formally publish without explicit authorization. Report the draft status and any failed checks succinctly.
+- Keep these reusable preferences public and generic; do not store the private triggering anecdote or user-specific financial details in this repository.
