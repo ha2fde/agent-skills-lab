@@ -1,0 +1,18 @@
+# Deployment and rollback
+
+Use the Sites tools with the original project ID in `source/.openai/hosting.json`. This public GitHub mirror is not the platform's authenticated source origin.
+
+1. Read current `get_site` and saved versions. Retain the deployed saved-version ID and source SHA. Reopen the same project with a freshly issued short-lived source repository credential through the Sites source helper. Keep credentials in memory/stdin only.
+2. Mirror the complete sanitized tracked snapshot to a new dated backup directory; compare all file paths, modes, sizes and Git blob hashes after GitHub readback. Preserve existing repo/Skill directories.
+3. Run TESTING.md checks in an isolated checkout. Never connect tests to production D1 or live credentials.
+4. Use the Sites `site-workflow.mjs` helper from the selected checkout with the complete original open result and native source credential; package after successful build. The helper commits/pushes the exact source and returns commit_sha + archive. Save that exact commit/archive using `save_site_version`, then deploy its returned saved-version ID with the appropriate audience-aware Sites tool. Do not alter runtime variables, audience, D1 or plugin identity.
+5. Poll only pending/building/publishing deployments. Record the terminal result/version/source SHA. Confirm original account still configured. Create only a clearly named test draft and verify title, text, styles, cover and body refs. Repeat the same request ID to confirm no duplicate. Do not edit existing articles to test this upgrade.
+6. Record verification boundaries and HANDOFF, then commit the final mirror/docs and checks manifest to GitHub. A changed GitHub document alone does not mean the Site has been deployed.
+
+## Rollback
+
+Pre-upgrade v3 saved-version ID: `appgprj_6aed4c1fef588191b5b8f417f70bcc82~appgver_f27a758d08588191a549ae9e3e60b499`
+
+Pre-upgrade source SHA: `be1f5d2b65ffd22889d8bfeda43ca2a57cb2f322`. The v3 archive is already saved in Sites. If post-deploy critical checks fail, deploy this exact saved version to the same project; do not create a Site. DB schema is unchanged, so rollback requires no DB restore or credential change. Preserve newly added text receipt states: v3 will safely refuse replaying an unknown newer operation. Do not rotate WECHAT_CONFIG_ENCRYPTION_KEY.
+
+Rollback capability is established by the retained saved v3 archive; a live rollback/redeployment drill has not been performed unless explicitly recorded in HANDOFF.
