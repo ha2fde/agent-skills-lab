@@ -61,6 +61,13 @@ For public-facing technical WeChat essays, **technical does not mean engineering
 - Human readability and insight are essential even in technical writing. Avoid both lyrical/personal essay filler **and** dry developer-document rhetoric. Keep facts, interpretation, and boundaries clear.
 - Editorial self-test: can an informed reader state the single thesis after the opening, follow why each section exists, and understand why the product comparisons matter? If not, simplify before publishing.
 
+### Visual-first mobile editing and references (2026-11-07)
+- For technical WeChat articles, favor **one simple architecture image plus one compact comparison image**, with consistent typography, palette and visual language. Diagrams should be understandable on a phone without zooming; prefer vertically stacked, short-label cards over dense landscape tables or tiny side annotations.
+- Remove excess whitespace **inside images and in surrounding HTML**. Avoid decorative empty paragraphs or repeated image captions. Uploaded images must be verified in actual draft content.
+- When the reader benefits more from a visual than prose, show the visual first and keep supporting prose short and nonduplicative.
+- A **references section is optional, not mandatory**. Omit it when it does not add reader value, there is no quotation/license requirement and the claims are noncontroversial or otherwise adequately grounded. Retain citations when necessary for unusual, contested, timely or specific claims; this is an editorial choice, not permission to omit necessary attribution.
+- User revisions about illustrations, whitespace or references are **localized changes**: preserve the approved article's central thesis, title and architecture narrative; update the existing draft rather than rewriting the entire piece.
+
 ## Operating contract
 
 1. Confirm the article goal and audience from context. For traffic-focused writing, use an accurate curiosity-driven headline, opening tension, relatable scenario, concrete insight, practical payoff and share-worthy ending. No fabricated case studies, statistics, endorsements, or guaranteed virality.
