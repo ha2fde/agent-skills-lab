@@ -1,4 +1,4 @@
-> Default only: 18px body, 23px headings, 1.85 line height, navy/champagne-gold. Honor each article's explicit background, text color, typography and spacing; never silently replace requested white/black with navy.
+> Default only: 18px body, 23px headings, 1.85 line height, navy/champagne-gold. Honor each article's explicit background, text color, typography and spacing; never silently replace the requested new style with any fixed template.
 
 # WeChat Article QA Checklist
 

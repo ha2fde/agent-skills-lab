@@ -7,7 +7,7 @@ The user's request to "write and save a WeChat article" means: editorial article
 
 ## Fixed design tokens
 - Default Chinese body: 18px, line-height 1.85–1.9; paragraph spacing 20–24px. An explicit per-article choice overrides these defaults within mobile-safe bounds.
-- Default section headings: 23px, line-height >=1.5, navy (#17283f) with restrained champagne gold (#c4a46a). A requested white/black or other coherent theme takes precedence.
+- Default section headings: 23px, line-height >=1.5, navy (#17283f) with restrained champagne gold (#c4a46a). The requested article-specific coherent theme takes precedence.
 - Avoid dense left-border heading blocks, cramped colored text inside pictures/callouts, horizontal process chains, and long unbroken English/API/URL strings.
 - A 900×383 cover image is for the cover, not a substitute for mobile-friendly in-article layout.
 - In-body emphasis: ~1–2 gold/bold phrases per section. Keep readable contrast; do not bold whole paragraphs.
@@ -37,7 +37,7 @@ Report these separately: cover uploaded; body images uploaded (or none); draft s
 For a verified new regression: repair the actual draft first; then update this contract/runbook and incident log in GitHub and read back the committed content. Prompts are not a substitute for executable tooling.
 
 ## Content-rich visual rhythm (default since 2026-11-07)
-- A white-background black-text design is valid when requested; use hierarchy and spacing so it reads well. Default editorial pages can avoid uninterrupted flat text. Use designed hierarchy, purposeful contrast, warm paper/navy/champagne-gold accents, section rhythm and sparing quote/pull-quote panels. Keep enough uncluttered white space for mobile scanning; avoid bright backgrounds behind long paragraphs.
+- The earlier problem was a plain white-background black-text draft that could not be restyled. Treat the new visual direction as article-specific; use hierarchy and spacing, and do not force the previous flat treatment back. Use designed hierarchy, purposeful contrast, warm paper/navy/champagne-gold accents, section rhythm and sparing quote/pull-quote panels. Keep enough uncluttered white space for mobile scanning; avoid bright backgrounds behind long paragraphs.
 - **Mix authentic sourced photography and explanatory diagrams.** The former communicates real-world experience, challenge, stakes and consequences; the latter illustrates a thought structure, decision model or architecture. Each image must earn its place. Do not use stereotypical fantasy AI illustrations, photorealistic synthetic subjects disguised as real photos, or purposeless stock scenery. Verify rights and attribution for third-party photos.
 - When asked to shorten, keep the article's core thesis and every distinct section's point, remove duplicated sentences and filler. Do not silently rewrite approved prose for a purely visual change.
 - Existing cover and approved media remain untouched unless the user requests replacement. Update exact draft ID after fetching its latest content hash; never create an accidental second draft.
