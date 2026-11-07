@@ -35,3 +35,11 @@ Report these separately: cover uploaded; body images uploaded (or none); draft s
 
 ## Update discipline
 For a verified new regression: repair the actual draft first; then update this contract/runbook and incident log in GitHub and read back the committed content. Prompts are not a substitute for executable tooling.
+
+## Content-rich visual rhythm (default since 2026-11-07)
+- Editorial pages should **not feel like uninterrupted white-background dark text**. Use designed hierarchy, purposeful contrast, warm paper/navy/champagne-gold accents, section rhythm and sparing quote/pull-quote panels. Keep enough uncluttered white space for mobile scanning; avoid bright backgrounds behind long paragraphs.
+- **Mix authentic sourced photography and explanatory diagrams.** The former communicates real-world experience, challenge, stakes and consequences; the latter illustrates a thought structure, decision model or architecture. Each image must earn its place. Do not use stereotypical fantasy AI illustrations, photorealistic synthetic subjects disguised as real photos, or purposeless stock scenery. Verify rights and attribution for third-party photos.
+- When asked to shorten, keep the article's core thesis and every distinct section's point, remove duplicated sentences and filler. Do not silently rewrite approved prose for a purely visual change.
+- Existing cover and approved media remain untouched unless the user requests replacement. Update exact draft ID after fetching its latest content hash; never create an accidental second draft.
+- **Renderer acceptance caveat:** On 2026-11-07, a valid inline CSS update with `background-color`, colored highlights and padded headings was accepted but these styling properties vanished from the WeChat get-draft readback. Treat such styles as unverified/not retained. Verify actual persisted markup, not only an API success flag. If colorful editorial bands are needed, upload and insert compact designed JPEG quote/section panels; keep them infrequent and readable alongside real photos and diagrams. Do not label an image-based solution as working HTML background CSS.
+- Report whether real mobile preview was checked independently from server readback.
