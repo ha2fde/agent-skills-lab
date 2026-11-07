@@ -1,4 +1,4 @@
-> Default only: 18px body, 23px headings, 1.85 line height, navy/champagne-gold. Honor each article's explicit background, text color, typography and spacing; never silently replace the requested new style with any fixed template.
+> The default is mobile readability: adequate type size, line height, paragraph spacing and wrapping. Navy/champagne-gold is one optional palette; honor any coherent article-specific background, text color and font.
 
 # WeChat Article QA Checklist
 
@@ -37,3 +37,5 @@
 - [ ] When saving was requested, let the user review in the draft box; report status succinctly, not the whole article in chat.
 
 - [ ] If an article theme was requested, pass `theme` to the high-level MCP, read back `visual_style`, and inspect actual background/text/font. A saved draft with `visual_style=false` is not visually accepted.
+
+- [ ] Safe inline article colors/background/font survive formatting even when the optional `theme` parameter is absent from a cached tool schema; readback confirms the result.

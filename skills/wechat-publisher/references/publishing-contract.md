@@ -6,8 +6,8 @@ This is the canonical acceptance contract. A new conversation MUST load this fil
 The user's request to "write and save a WeChat article" means: editorial article + mobile-formatted HTML + approved cover image actually uploaded to WeChat + draft saved + readback verified. A generated picture or local JPEG alone is not a completed cover. A draft with a missing or recycled cover is NOT complete. Default is draft-only.
 
 ## Fixed design tokens
-- Default Chinese body: 18px, line-height 1.85–1.9; paragraph spacing 20–24px. An explicit per-article choice overrides these defaults within mobile-safe bounds.
-- Default section headings: 23px, line-height >=1.5, navy (#17283f) with restrained champagne gold (#c4a46a). The requested article-specific coherent theme takes precedence.
+- Mobile readability baseline: repair body text that is too small, cramped line spacing, inadequate paragraph whitespace and overflow. 18px / 1.85 and 20–24px paragraph space are useful defaults; safe article-specific choices take precedence.
+- Headings should be clearly larger than body (around 23px / 1.5 by default). Color and background are chosen per article; navy/champagne-gold is an optional palette, not a mandatory treatment.
 - Avoid dense left-border heading blocks, cramped colored text inside pictures/callouts, horizontal process chains, and long unbroken English/API/URL strings.
 - A 900×383 cover image is for the cover, not a substitute for mobile-friendly in-article layout.
 - In-body emphasis: ~1–2 gold/bold phrases per section. Keep readable contrast; do not bold whole paragraphs.
@@ -52,3 +52,5 @@ For a verified new regression: repair the actual draft first; then update this c
 
 ## Intent and test-cleanup boundary
 Writing, illustration or layout alone does not authorize creating a WeChat draft. When the user explicitly requests saving, deliver it to their draft box and let them review there instead of pasting a long full article in chat. New synthetic test drafts may use test_draft=true only when that parameter is actually callable, and must be removed by exact ID through the guarded delete tool after verification. Historical drafts lack trusted provenance and cannot pass that automatic gate. Source code and connection_status capabilities do not prove the ChatGPT tool catalog refreshed. Never formally publish without separate authorization.
+
+- Preserve safe inline CSS for the chosen article palette and typography. A dark section needs explicit light text/headings; a light section may use dark text. Reject cramped 10px/1.1 formatting and unsafe positioning. Read back the actual style rather than assuming the server or WeChat kept it.

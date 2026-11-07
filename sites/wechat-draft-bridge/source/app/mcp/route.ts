@@ -4,7 +4,7 @@ import { object } from "@/lib/wechat-validation";
 export const dynamic = "force-dynamic";
 const versions = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
 const MAX_REQUEST_BYTES = 512 * 1024;
-const serverInfo = { name: "wechat-draft-assistant", title: "公众号草稿助手", version: "1.2.2" };
+const serverInfo = { name: "wechat-draft-assistant", title: "公众号草稿助手", version: "1.2.3" };
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } });
 async function readMessage(request: Request) {
   if (Number(request.headers.get("content-length") ?? 0) > MAX_REQUEST_BYTES) throw new RangeError("oversize");

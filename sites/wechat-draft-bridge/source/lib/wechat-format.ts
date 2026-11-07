@@ -4,7 +4,7 @@ import { textContent } from "domutils";
 import { UserFacingError } from "./errors";
 import { object, str, type Article } from "./wechat-validation";
 
-export const FORMAT_VERSION = "mobile-theme-v2";
+export const FORMAT_VERSION = "mobile-style-v3";
 export type ArticleTheme = { background_color: string; text_color: string; heading_color: string; accent_color: string; font_family: "system" | "serif"; body_size: number; heading_size: number; line_height: number };
 const defaultTheme: ArticleTheme = { background_color:"#ffffff", text_color:"#17283f", heading_color:"#17283f", accent_color:"#c4a46a", font_family:"system", body_size:18, heading_size:23, line_height:1.85 };
 export function resolveTheme(value: unknown): ArticleTheme {
@@ -29,6 +29,24 @@ export function resolveTheme(value: unknown): ArticleTheme {
   return result;
 }
 const wrap = "max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;word-wrap:break-word;word-break:normal;";
+function safeInlineStyle(input: string, tag: string): string {
+  const accepted: string[] = [];
+  for (const part of input.split(";")) {
+    const pos = part.indexOf(":"); if (pos < 0) continue;
+    const key = part.slice(0,pos).trim().toLowerCase(), value = part.slice(pos+1).trim();
+    if (!value || /[!;{}<>\\]/.test(value) || /url\s*\(|var\s*\(|expression\s*\(/i.test(value)) continue;
+    if (["color","background-color"].includes(key) && /^#[0-9a-fA-F]{6}$/.test(value)) accepted.push(`${key}:${value.toLowerCase()};`);
+    else if (key === "font-family" && /^(?:Georgia|serif|sans-serif|system-ui|"?(?:PingFang SC|Microsoft YaHei|Songti SC)"?)(?:\s*,\s*(?:Georgia|serif|sans-serif|system-ui|"?(?:PingFang SC|Microsoft YaHei|Songti SC)"?))*$/i.test(value)) accepted.push(`${key}:${value};`);
+    else if (key === "font-size" && /^\d{2}px$/.test(value)) {
+      const size=Number.parseInt(value,10), min=["h2","h3"].includes(tag)?18:14, max=["h2","h3"].includes(tag)?30:22;
+      if (size>=min && size<=max) accepted.push(`${key}:${size}px;`);
+    } else if (key === "line-height" && /^(?:1\.[5-9]\d?|2(?:\.[0-2]\d?)?)$/.test(value) && Number(value)<=2.2) accepted.push(`${key}:${value};`);
+    else if (key === "font-weight" && /^(?:bold|normal|[4-8]00)$/.test(value)) accepted.push(`${key}:${value};`);
+    else if (key === "text-align" && /^(?:left|center|right)$/.test(value)) accepted.push(`${key}:${value};`);
+    else if (["margin-top","margin-bottom","padding-top","padding-bottom","padding-left","padding-right"].includes(key) && /^(?:0|[1-9]\d?)px$/.test(value) && Number.parseInt(value,10)<=48) accepted.push(`${key}:${value};`);
+  }
+  return accepted.join("");
+}
 function themeStyles(t: ArticleTheme): Record<string, string> {
   const font = t.font_family === "serif" ? 'Georgia,"Songti SC","Noto Serif CJK SC",serif' : '-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif';
   const body = `font-size:${t.body_size}px;line-height:${t.line_height};`;
@@ -79,10 +97,9 @@ export function normalizeHtml(content: string, theme?: unknown): string {
     if (tag === "div" || tag === "article") tag = "section";
     if (!(tag in styles)) throw new UserFacingError("排版校验：正文含不支持的 HTML 标签。");
     let style = styles[tag];
-    // Retain emphasis without accepting arbitrary positioning, URLs or sizing.
-    if (/color\s*:\s*#c4a46a\b/i.test(node.attribs.style ?? "")) style += `color:${t.accent_color};`;
-    if (/font-weight\s*:\s*(?:bold|[6-9]00)/i.test(node.attribs.style ?? "")) style += "font-weight:700;";
-    let attrs = style ? ` style="${style}"` : "";
+    // Explicit safe per-article inline styles override fallback typography/palette.
+    style += safeInlineStyle(node.attribs.style ?? "", tag);
+    let attrs = style ? ` style="${escapeHtml(style)}"` : "";
     if (tag === "a") attrs += ` href="${escapeHtml(httpUrl(node.attribs.href ?? ""))}"`;
     if (tag === "img") attrs += ` src="${escapeHtml(wechatImageUrl(node.attribs.src ?? node.attribs["data-src"] ?? ""))}" alt="${escapeHtml(node.attribs.alt ?? "")}"`;
     if (tag === "img" || tag === "br" || tag === "hr") return `<${tag}${attrs}>`;
@@ -90,7 +107,7 @@ export function normalizeHtml(content: string, theme?: unknown): string {
   }
   const html = document.children.map(render).join("");
   if (!textContent(document).trim()) throw new UserFacingError("排版校验：正文没有文字。");
-  return `<section style="${styles.section}">${html}</section>`;
+  return `<section style="${escapeHtml(styles.section)}">${html}</section>`;
 }
 export function prepareHtml(content: string, format: unknown, references: unknown = [], placeholders = new Map<string, string>(), theme?: unknown) {
   let html = format === "text" ? content.split(/\n\s*\n/).map(p => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`).join("") : content;

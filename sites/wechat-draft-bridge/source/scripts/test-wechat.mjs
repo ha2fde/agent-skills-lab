@@ -208,7 +208,7 @@ try {
     const next = await (await rpc("after-error", "tools/call", { name: "wechat_list_images", arguments: {} })).json();
     assert.equal(next.id, "after-error"); assert.equal(next.result.isError, false);
     const status = await (await rpc(1, "initialize", { protocolVersion: "2026-07-28" })).json();
-    assert.equal(status.result.serverInfo.version, "1.2.2");
+    assert.equal(status.result.serverInfo.version, "1.2.3");
   });
   await test("oversized streamed MCP requests return a bounded JSON-RPC error", async () => {
     const response = await route.namespace.POST(new Request("https://mock.test/mcp", { method: "POST", body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { data: "A".repeat(512 * 1024) } }) }));
@@ -265,6 +265,13 @@ try {
     const result=fmt.verifyArticle(expected,altered);assert.equal(result.verified,false);assert.equal(result.checks.visual_style,false);
     assert.throws(()=>fmt.prepareHtml("<p>正文</p>","html",[],new Map(),{text_color:"red"}),/六位/);
     assert.throws(()=>fmt.prepareHtml("<p>正文</p>","html",[],new Map(),{font_family:"url(evil)"}),/字体/);
+  });
+  await test("safe article colors survive without theme while cramped styling is repaired",async()=>{
+    const html=fmt.prepareHtml('<section style="background-color:#17283f;color:#f8ead4;font-family:Georgia,serif"><h2 style="color:#ffd27a;font-size:25px">标题</h2><p style="color:#f8ead4;font-size:10px;line-height:1.1;margin-bottom:24px;position:fixed">正文<strong style="color:#ffd27a">重点</strong></p></section>',"html");
+    assert.match(html,/background-color:#17283f/);assert.match(html,/color:#f8ead4/);assert.match(html,/color:#ffd27a/);assert.match(html,/font-family:Georgia,serif/);assert.match(html,/font-size:25px/);assert.match(html,/font-size:18px;line-height:1.85/);
+    assert.ok(!html.includes("font-size:10px"));assert.ok(!html.includes("line-height:1.1"));assert.ok(!html.includes("position:fixed"));
+    const expected=validation.validateArticle({...article,content:html});assert.equal(fmt.verifyArticle(expected,expected).verified,true);
+    assert.equal(fmt.verifyArticle(expected,{...expected,content:html.replace("background-color:#17283f","background-color:#333333")}).checks.visual_style,false,html);
   });
   const prepareArgs={request_id:"prepared-success-001",title:"一键保存测试",digest:"测试摘要",content:'<h2>标题</h2><p>正文<strong>重点</strong>[1]</p>{{image:body1}}',cover:{image_base64:fixture.toString("base64")},body_images:[{id:"body1",image_base64:fixture.toString("base64")}],references:[{title:"参考",url:"https://example.com/"}]};
   await test("one-click uploads images, formats, saves, verifies and replays without side effects",async()=>{
