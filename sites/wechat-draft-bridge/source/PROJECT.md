@@ -1,6 +1,6 @@
 # 公众号草稿助手 / wechat-draft-bridge
 
-Existing Sites-hosted private MCP, service 1.1.0. Preserve project identity in `.openai/hosting.json`, D1 DB, runtime secrets, audience and canonical plugin.
+Existing Sites-hosted private MCP, service 1.1.1. Preserve project identity in `.openai/hosting.json`, D1 DB, runtime secrets, audience and canonical plugin.
 
 ## Tools
 
@@ -23,3 +23,5 @@ Low-level create/update retain their signatures; HTML is normalized server-side.
 `pnpm test`; `node node_modules/typescript/bin/tsc --noEmit`; Sites `build-site.mjs`; `pnpm test:built` (real workerd + temporary D1, mocked WeChat; no live credentials). Test fixtures are synthetic images only.
 
 Maintenance docs and release handoff: `ha2fde/agent-skills-lab/sites/wechat-draft-bridge/`. Always back up source, verify checks, record source commits, save/deploy the same Sites project, perform test-only draft readback and update HANDOFF. Preserve v3 as pre-upgrade rollback. Never invoke public publication or mass-send APIs.
+
+Real WeChat readback may replace img src with data-src, switch HTTP→HTTPS and /0→/640 CDN rendition paths. Verification canonicalizes only known qpic image identities. It never accepts missing links: accounts without external-link permission may have anchors stripped by WeChat. The high-level reference generator includes the destination as visible text to avoid losing the citation URL; links=false remains a failure. Use supported WeChat article links where clickable references are required.

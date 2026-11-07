@@ -38,7 +38,7 @@ export async function connectionStatus(userId: string) {
     route: c?.relayUrl ? "fixed_ip_relay" : "direct", relay_url: c?.relayUrl ?? "", has_app_secret: !!c?.secretCipher, has_relay_key: !!c?.relayKeyCipher,
     verified_at: c?.verifiedAt ?? null, last_error: c?.lastError ?? null, settings_url: SETTINGS_URL,
     capabilities: ["create_draft", "update_draft", "list_drafts", "get_draft", "upload_images", "prepare_and_save_draft"],
-    service_version: "1.1.0", format_version: FORMAT_VERSION,
+    service_version: "1.1.1", format_version: FORMAT_VERSION,
     network_note: "直连托管服务不承诺固定出口 IP。若微信返回 40164，请配置固定公网 IP 的转发服务。",
   };
 }
@@ -166,7 +166,7 @@ async function readback(c: Connection, mediaId: string, expected: ReturnType<typ
       return actual ? verifyArticle(article, actual) : { verified: false, checks: { article_present: false } };
     });
     const verified = verification.every(v => v.verified) && (indices !== undefined || draft.articles.length === expected.length);
-    return { readback_verified: verified, verification, draft, ...(verified ? {} : { warning: "草稿已保存，但读回内容或样式不一致；请检查验证明细，禁止重新创建。" }) };
+    return { readback_verified: verified, verification, draft, ...(verified ? {} : { warning: "草稿已保存，但读回内容或样式不一致；请检查验证明细。若 links=false，微信可能因账号权限移除了外链；不要重复创建。" }) };
   } catch { return { readback_verified: false, warning: "微信已返回写入成功及草稿 ID，但后续读回失败。请查询此 ID，勿再次创建。" }; }
 }
 function formattedArticle(value: unknown) {

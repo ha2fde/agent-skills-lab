@@ -56,7 +56,7 @@ export function normalizeHtml(content: string): string {
     if (/font-weight\s*:\s*(?:bold|[6-9]00)/i.test(node.attribs.style ?? "")) style += "font-weight:700;";
     let attrs = style ? ` style="${style}"` : "";
     if (tag === "a") attrs += ` href="${escapeHtml(httpUrl(node.attribs.href ?? ""))}"`;
-    if (tag === "img") attrs += ` src="${escapeHtml(wechatImageUrl(node.attribs.src ?? ""))}" alt="${escapeHtml(node.attribs.alt ?? "")}"`;
+    if (tag === "img") attrs += ` src="${escapeHtml(wechatImageUrl(node.attribs.src ?? node.attribs["data-src"] ?? ""))}" alt="${escapeHtml(node.attribs.alt ?? "")}"`;
     if (tag === "img" || tag === "br" || tag === "hr") return `<${tag}${attrs}>`;
     return `<${tag}${attrs}>${node.children.map(render).join("")}</${tag}>`;
   }
@@ -77,8 +77,20 @@ export function prepareHtml(content: string, format: unknown, references: unknow
     const n = Math.max(...citations);
     if (n > 50 || Array.from({ length: n }, (_, i) => i + 1).some(i => !citations.includes(i))) throw new UserFacingError("排版校验：参考编号必须从 [1] 开始连续；建议使用 references 数组自动生成。");
   }
-  if (refNodes.length) html += "<h2>参考资料</h2>" + refNodes.map((r, i) => `<p>[${i + 1}] <a href="${escapeHtml(r.url)}">${escapeHtml(r.title)}</a></p>`).join("");
+  if (refNodes.length) html += "<h2>参考资料</h2>" + refNodes.map((r, i) => `<p>[${i + 1}] <a href="${escapeHtml(r.url)}">${escapeHtml(r.title)} · ${escapeHtml(r.url)}</a></p>`).join("");
   return normalizeHtml(html);
+}
+function imageIdentity(value: string) {
+  try {
+    const u=new URL(value);
+    if (/(?:^|\.)qpic\.cn$/.test(u.hostname)) {
+      u.protocol="https:";
+      u.pathname=u.pathname.replace(/\/(?:0|100|132|200|300|640|1080)$/,"/image");
+      for(const key of ["from","wx_fmt","wxfrom","wx_lazy","tp"]) u.searchParams.delete(key);
+      u.searchParams.sort();
+    }
+    return u.toString();
+  } catch { return value; }
 }
 function surface(content: string) {
   const d = parseDocument(content, { decodeEntities: true });
@@ -87,7 +99,7 @@ function surface(content: string) {
   const walk = (nodes: AnyNode[]) => nodes.forEach(n => {
     if (!isTag(n)) return;
     const s = n.attribs.style ?? "";
-    if (n.name === "img") images.push(n.attribs.src ?? "");
+    if (n.name === "img") images.push(imageIdentity(n.attribs.src ?? n.attribs["data-src"] ?? ""));
     if (n.name === "a") links.push(n.attribs.href ?? "");
     if (n.name === "h2") { headings.push(textContent(n)); headingStyle &&= /font-size:\s*23px/i.test(s); }
     if (n.name === "strong" || n.name === "b") emphasis.push(textContent(n));

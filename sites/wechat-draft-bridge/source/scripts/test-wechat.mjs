@@ -200,7 +200,7 @@ try {
     const next = await (await rpc("after-error", "tools/call", { name: "wechat_list_images", arguments: {} })).json();
     assert.equal(next.id, "after-error"); assert.equal(next.result.isError, false);
     const status = await (await rpc(1, "initialize", { protocolVersion: "2026-07-28" })).json();
-    assert.equal(status.result.serverInfo.version, "1.1.0");
+    assert.equal(status.result.serverInfo.version, "1.1.1");
   });
   await test("oversized streamed MCP requests return a bounded JSON-RPC error", async () => {
     const response = await route.namespace.POST(new Request("https://mock.test/mcp", { method: "POST", body: JSON.stringify({ jsonrpc: "2.0", id: 2, method: "tools/call", params: { data: "A".repeat(512 * 1024) } }) }));
@@ -276,6 +276,15 @@ try {
     const before=calls.filter(p=>p==="/cgi-bin/draft/add").length;
     assert.equal((await core.prepareAndSaveDraft("alice",args)).outcome,"unknown");assert.equal(calls.filter(p=>p==="/cgi-bin/draft/add").length,before);
     failure="";assert.equal((await core.prepareAndSaveDraft("alice",args)).readback_verified,true);
+  });
+  await test("WeChat CDN size/data-src rewrites preserve image identity but stripped links fail",async()=>{
+    const content=fmt.normalizeHtml('<p>参考[1]</p><img src="http://mmbiz.qpic.cn/mmbiz_jpg/mock-image-id/0?from=appmsg"><p><a href="https://example.com">来源</a></p>');
+    const expected=validation.validateArticle({...article,content});
+    const rewritten=content.replace('src="http://mmbiz.qpic.cn/mmbiz_jpg/mock-image-id/0?from=appmsg"','data-src="https://mmbiz.qpic.cn/mmbiz_jpg/mock-image-id/640?from=appmsg"');
+    assert.equal(fmt.verifyArticle(expected,{...expected,content:rewritten}).verified,true);
+    const stripped=rewritten.replace(/<a[^>]*>(.*?)<\/a>/g,'$1');
+    const check=fmt.verifyArticle(expected,{...expected,content:stripped});assert.equal(check.verified,false);assert.equal(check.checks.links,false);assert.equal(check.checks.images,true);
+    assert.match(fmt.normalizeHtml(rewritten),/src="https:\/\/mmbiz/);
   });
   if(process.argv.includes("--layout")) {
     const html=fmt.prepareHtml('<h2>手机排版回归</h2><p>正文<strong>重点句</strong>与参考资料[1]。</p><pre><code>{"request_id":"example-001","url":"https://example.com/'+"long-identifier-".repeat(12)+'"}</code></pre><p><a href="https://example.com/">https://example.com/'+"long-link/".repeat(18)+'</a></p>',"html",[{title:"资料链接",url:"https://example.com/"}]);
