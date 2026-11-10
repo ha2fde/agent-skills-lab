@@ -50,27 +50,6 @@
       "sourceArchive": "spark-ai-stack-deploy-20261013.zip",
       "sourceValidation": "user-reported target-machine deployment; not independently retested",
       "archivedAt": "2026-10-13"
-    },
-    {
-      "name": "wechat-publisher",
-      "category": "publishing",
-      "path": "skills/wechat-publisher",
-      "version": "1.0.0",
-      "validation": "wechat-cover-upload-and-draft-readback-verified; mobile preview user-validated"
-    },
-    {
-      "name": "apache-security-reporting",
-      "category": "security",
-      "path": "skills/apache-security-reporting",
-      "version": "1.0.1",
-      "validation": "sent-email-format-reviewed; cross-agent-installation-not-tested"
-    },
-    {
-      "name": "wechat-image-post",
-      "category": "publishing",
-      "path": "skills/wechat-image-post",
-      "version": "1.1.0",
-      "validation": "workflow-documented; independent four-image generation regression not yet retested"
     }
   ]
 }
