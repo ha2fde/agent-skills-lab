@@ -10,8 +10,6 @@ Maintained by [@ha2fde](https://github.com/ha2fde). Skills follow the `SKILL.md`
 
 | Category | Skill | Purpose | Validation |
 |---|---|---|---|
-| Security | [apache-security-reporting](skills/apache-security-reporting/SKILL.md) | Confidential ASF vulnerability reporting, technical review, concise email drafting, and manual sending | Compared with sent-email formats; cross-agent execution not tested |
-| Publishing | [wechat-image-post](skills/wechat-image-post/SKILL.md) | WeChat 3:4 independent image cards, one shared caption, sequential generation and QA | Workflow documented; four-card regression pending |\n| Publishing | [wechat-publisher](skills/wechat-publisher/SKILL.md) | WeChat article creation, covers, mobile formatting, image uploads, and draft verification | Cover upload and draft readback tested; mobile preview requires manual review |
 | AI infrastructure | [spark-ai-stack-deploy](skills/spark-ai-stack-deploy/SKILL.md) | DGX Spark workload deployment, operations, and validation | Archived deployment records; not independently retested |
 | Operations | [tailscale-macos](skills/tailscale-macos/SKILL.md) | Tailscale setup, SSH access, and troubleshooting on macOS | Structure checked; hardware not retested |
 | Operations | [macos-remote-power](skills/macos-remote-power/SKILL.md) | Mac wakefulness, remote access, and rollback | Structure checked; hardware not retested |
@@ -37,8 +35,6 @@ npx skills add ha2fde/agent-skills-lab --list
 Install an individual skill for a compatible agent (examples):
 
 ```bash
-npx skills add ha2fde/agent-skills-lab --skill apache-security-reporting -g -a codex
-npx skills add ha2fde/agent-skills-lab --skill wechat-publisher -g -a codex\nnpx skills add ha2fde/agent-skills-lab --skill wechat-image-post -g -a codex
 npx skills add ha2fde/agent-skills-lab --skill spark-ai-stack-deploy -g -a codex
 npx skills add ha2fde/agent-skills-lab --skill tailscale-macos -g -a claude-code
 npx skills add ha2fde/agent-skills-lab --skill macos-remote-power -g -a codex
